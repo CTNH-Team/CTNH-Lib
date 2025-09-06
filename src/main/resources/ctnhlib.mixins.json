@@ -1,7 +1,7 @@
 {
     "required": true,
     "minVersion": "0.8",
-    "package": "tech.vixhentx.mcmod.mixin",
+    "package": "tech.vixhentx.mcmod.ctnhlib.mixin",
     "compatibilityLevel": "JAVA_8",
     "refmap": "ctnhlib.refmap.json",
     "mixins": [

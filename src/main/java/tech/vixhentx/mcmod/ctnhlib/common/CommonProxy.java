@@ -1,9 +1,9 @@
-package tech.vixhentx.mcmod.common;
+package tech.vixhentx.mcmod.ctnhlib.common;
 
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import tech.vixhentx.mcmod.CTNHLib;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 @Mod.EventBusSubscriber(modid = CTNHLib.MODID,bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CommonProxy {
