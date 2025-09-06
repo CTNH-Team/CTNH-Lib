@@ -1,0 +1,17 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "tech.vixhentx.mcmod.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "refmap": "ctnhlib.refmap.json",
+    "mixins": [
+    ],
+    "client": [
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "overwrites": {
+        "requireAnnotations": true
+    }
+}

@@ -1,0 +1,37 @@
+repositories {
+    mavenCentral()
+
+    maven { // GTM
+        name = 'GTCEu Maven'
+        url = 'https://maven.gtceu.com'
+        content {
+            includeGroup 'com.gregtechceu.gtceu'
+        }
+    }
+    maven { // JEI
+        name = "Jared's Maven"
+        url = "https://maven.blamejared.com/"
+    }
+
+    maven { // JEI mirror, AE2
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+
+    maven { // LDLib
+        name = "FirstDarkDev Maven"
+        url = "https://maven.firstdarkdev.xyz/snapshots"
+    }
+
+    maven { // Registrate
+        url "https://maven.tterrag.com/"
+    }
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+    maven {
+        url = "https://cursemaven.com"
+    }
+    mavenLocal()
+
+}
