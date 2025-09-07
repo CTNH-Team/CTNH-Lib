@@ -12,7 +12,7 @@ buildscript {
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id "io.freefair.lombok" version "8.10"
 }
@@ -82,8 +82,8 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 jarJar.enable()
 
-apply from: "$rootDir/repositories.gradle"
-apply from: "$rootDir/dependencies.gradle"
+apply from: "$projectDir/repositories.gradle"
+apply from: "$projectDir/dependencies.gradle"
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
