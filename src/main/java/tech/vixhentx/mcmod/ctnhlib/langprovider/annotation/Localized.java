@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@SuppressWarnings({"unused","null"})
 public @interface Localized {
     String[] value();
 }
