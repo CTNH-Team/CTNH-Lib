@@ -7,28 +7,21 @@ import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
 
 import java.util.function.Function;
 
-public class BaseRegistrate<S extends BaseRegistrate<S,G>, G extends GTRegistrate> extends AbstractRegistrate<S> {
+public class BaseRegistrate extends GTRegistrate {
     /**
      * Construct a new Registrate for the given mod ID.
      *
      * @param modid The mod ID for which objects will be registered
      */
-    protected BaseRegistrate(String modid, Function<String, G> GTRegistrateFactory) {
+    protected BaseRegistrate(String modid) {
         super(modid);
         this.langProcessor = new LangProcessor(this);
-        this.gtRegistrate = GTRegistrateFactory.apply(modid);
-        gtRegistrate.registerRegistrate();
-    }
-    //wrap a langprocessor
-    private final LangProcessor langProcessor;
-    //warp a gtregistrate
-    private final G gtRegistrate;
-    public G GT(){
-        return gtRegistrate;
     }
 
-    public S addLang(Class<?> clazz){
+    private final LangProcessor langProcessor;
+
+    public BaseRegistrate addLang(Class<?> clazz){
         langProcessor.process(clazz);
-        return self();
+        return this;
     }
 }
