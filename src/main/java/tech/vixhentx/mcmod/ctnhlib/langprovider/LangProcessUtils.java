@@ -1,33 +1,33 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 class LangProcessUtils {
-    static String getRoot(Class<?> clazz,String orElse){
-        var root = clazz.getAnnotation(Domain.class).root();
-        if(root.isEmpty()) return orElse;
+    static String getRoot(Domain domain, String defaultRoot){
+        var root = domain.root();
+        if(root.isEmpty()) return defaultRoot;
         else return root;
     }
-    static String getCategory(Class<?> clazz, String domain){
-        var category = clazz.getAnnotation(Domain.class).category();
+    static String getCategory(Domain domain, String className){
+        var category = domain.category();
         if(!category.isEmpty()) return category;
 
-        String rawName = clazz.getSimpleName().toLowerCase(Locale.ROOT);
-        if(rawName.endsWith(domain)) return rawName.substring(0, rawName.length() - domain.length());
-        else if (rawName.startsWith(domain)) return rawName.substring(domain.length() + 1);
+        String rawName = className.toLowerCase(Locale.ROOT);
+        String domainName = domain.value();
+        if(rawName.endsWith(domainName)) return rawName.substring(0, rawName.length() - domainName.length());
+        else if (rawName.startsWith(domainName)) return rawName.substring(domainName.length() + 1);
         else return rawName;
     }
-    static String getPrefix(Class<?> clazz){
-        var prefix = clazz.getAnnotation(Prefix.class).value();
-        return prefix.isEmpty()? clazz.getSimpleName().toLowerCase(Locale.ROOT) : prefix;
+    static String getPrefix(Prefix prefix, Supplier<String> className){
+        return prefix.value().isEmpty()? className.get().toLowerCase(Locale.ROOT) : prefix.value();
     }
-    static String getSuffix(Class<?> clazz){
-        var suffix = clazz.getAnnotation(Suffix.class).value();
-        return suffix.isEmpty()? clazz.getSimpleName().toLowerCase(Locale.ROOT) : suffix;
+    static String getSuffix(Suffix suffix, Supplier<String> className){
+        return suffix.value().isEmpty()? className.get().toLowerCase(Locale.ROOT) : suffix.value();
     }
     static String getItemKey(Field field){
         var key = field.getAnnotation(Key.class);
@@ -53,60 +53,14 @@ class LangProcessUtils {
     static String buildKeyWithIndex(String builtKey, int index){
         return builtKey + "." + index;
     }
-    @SuppressWarnings("AccessStaticViaInstance")
-    static LocatedLang getLocatedInfo(Field field){
-        var builder = LocatedLang.builder();
-        var generals = field.getAnnotationsByType(Locate.class);
-        for (var general : generals) {
-            var values = general.value();
-            var location = general.location();
-            for (var value : values)
-                builder.add(location, value);
-        }
-
-        //specified
-        var en = field.getAnnotation(Locate.EN.class);
-        if(en!=null)
-                builder.add(en.LOCATION, en.value()[0]);
-
-        var cn = field.getAnnotation(Locate.CN.class);
-        if(cn!=null)
-                builder.add(cn.LOCATION, cn.value()[0]);
-
-        return builder.build();
+    static TranslatedLang getLocatedInfo(Field field){
+        Localized localized = field.getAnnotation(Localized.class);
+        return TranslatedLang.of(localized.value()[0]);
     }
-    @SuppressWarnings("AccessStaticViaInstance")
-    static LocatedLang[] getLocatedInfos(Field field){
-        var generals = field.getAnnotationsByType(Locate.class);
-        Map<String, String[]> langMap = new Object2ObjectArrayMap<>();
-        for (var general : generals) {
-            var values = general.value();
-            var location = general.location();
-            langMap.put(location, values);
-        }
-
-        //specified
-        var en = field.getAnnotation(Locate.EN.class);
-        if(en!=null)
-            langMap.put(en.LOCATION, en.value());
-
-        var cn = field.getAnnotation(Locate.CN.class);
-        if(cn!=null)
-            langMap.put(cn.LOCATION, cn.value());
-
-        int size = langMap.values().stream().mapToInt(a->a.length).max().orElse(0);
-
-        LocatedLang[] ret = new LocatedLang[size];
-        for(int i=0;i<size;i++) ret[i].locates = new Located[langMap.size()];
-
-        int index = 0;
-        for(var entry : langMap.entrySet()){
-            var location = entry.getKey();
-            var values = entry.getValue();
-            for(int i=0;i<values.length;i++)
-                ret[i].locates[index++] = new Located(location, values[i]);
-        }
-
-        return ret;
+    static TranslatedLang[] getLocatedInfos(Field field){
+        Localized localized = field.getAnnotation(Localized.class);
+        return Stream.of(localized.value())
+                .map(TranslatedLang::of)
+                .toArray(TranslatedLang[]::new);
     }
 }

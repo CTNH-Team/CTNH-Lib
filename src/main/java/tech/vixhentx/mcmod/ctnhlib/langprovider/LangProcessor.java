@@ -1,7 +1,6 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
-import com.tterrag.registrate.providers.RegistrateLangProvider;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import com.tterrag.registrate.AbstractRegistrate;
 import net.minecraftforge.fml.loading.FMLLoader;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
@@ -12,40 +11,30 @@ import java.util.function.Consumer;
 
 public class LangProcessor {
     final String modid;
-    public final DomainList domainList = new DomainList();
-    public final Map<String, Map<String, String>> processedData = new HashMap<>();
-    private final Consumer<LocatedLang> genDataMethod;
+    private final Consumer<TranslatedLang> genDataMethod;
 
-    public LangProcessor(String modid){
+    public LangProcessor(String modid, Consumer<TranslatedLang> dataGenerator){
         this.modid = modid;
         boolean isDataGen = FMLLoader.getLaunchHandler().isData();
-        genDataMethod = isDataGen? this::genLangData : __ -> {};
+        genDataMethod = isDataGen? dataGenerator : __ -> {};
     }
-    public void dispose(){
-        domainList.dispose();
+    public LangProcessor(AbstractRegistrate<?> registrate){
+        this(registrate.getModid(),(lang)->registrate.addRawLang(lang.key, lang.translation));
     }
-    public void genForLocation(String location, RegistrateLangProvider provider){
-        for(var entry : processedData.get(location).entrySet()){
-            provider.add(entry.getKey(), entry.getValue());
-        }
-        processedData.remove(location);
-    }
-    public void process(){
-        for(var entry : domainList.entries()){
-            var domain = entry.getKey();
-            var classes = entry.getValue();
-            for(var clazz : classes){
-                String category = LangProcessUtils.getCategory(clazz,domain);
-                var root = LangProcessUtils.getRoot(clazz, modid);
 
-                LinkedList<String> prefixes = new LinkedList<>();
-                LinkedList<String> suffixes = new LinkedList<>();
+    public void process(Class<?> clazz){
+        String category, domain, className;
+        className = clazz.getSimpleName();
+        Domain domainAnnotation = clazz.getAnnotation(Domain.class);
+        category = LangProcessUtils.getCategory(domainAnnotation,className);
+        domain = domainAnnotation.value();
+        var root = LangProcessUtils.getRoot(domainAnnotation, modid);
 
-                //dfs
-                processCurrent(clazz, prefixes, suffixes, domain, root, category);
-            }
-        }
-        domainList.dispose();
+        LinkedList<String> prefixes = new LinkedList<>();
+        LinkedList<String> suffixes = new LinkedList<>();
+
+        //dfs
+        processCurrent(clazz, prefixes, suffixes, domain, root, category);
     }
     private void processCurrent(Class<?> current, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
         for (var field : current.getDeclaredFields())
@@ -58,20 +47,23 @@ public class LangProcessor {
                 CTNHLib.LOGGER.error("Illegal access to field {} in class {}", field.getName(), current.getName());
             }
 
-        for (var clazzInClazz : current.getDeclaredClasses())
-            if (clazzInClazz.isAnnotationPresent(Prefix.class))
-                processPrefix(clazzInClazz, prefixes, suffixes, domain, root, category);
-            else if (clazzInClazz.isAnnotationPresent(Suffix.class))
-                processSuffix(clazzInClazz, prefixes, suffixes, domain, root, category);
+        for (var clazzInClazz : current.getDeclaredClasses()){
+            Prefix prefix = clazzInClazz.getAnnotation(Prefix.class);
+            if(prefix!= null) processPrefix(clazzInClazz, prefix, prefixes, suffixes, domain, root, category);
+            else {
+                Suffix suffix = clazzInClazz.getAnnotation(Suffix.class);
+                if (suffix != null) processSuffix(clazzInClazz, suffix, prefixes, suffixes, domain, root, category);
+            }
+        }
     }
-    private void processPrefix(Class<?> clazz, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
-        String prefix = LangProcessUtils.getPrefix(clazz);
+    private void processPrefix(Class<?> clazz, Prefix prefixAnnotation, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
+        String prefix = LangProcessUtils.getPrefix(prefixAnnotation,clazz::getSimpleName);
         prefixes.addLast(prefix);
         processCurrent(clazz, prefixes, suffixes,domain, root, category);
         prefixes.removeLast();
     }
-    private void processSuffix(Class<?> clazz, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
-        String suffix = LangProcessUtils.getSuffix(clazz);
+    private void processSuffix(Class<?> clazz, Suffix suffixAnnotation, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
+        String suffix = LangProcessUtils.getSuffix(suffixAnnotation,clazz::getSimpleName);
         suffixes.addLast(suffix);
         processCurrent(clazz, prefixes, suffixes, domain, root, category);
         suffixes.removeLast();
@@ -84,43 +76,39 @@ public class LangProcessor {
         if(!isArray){
             field.setAccessible(true);
             Lang value = (Lang) field.get(holderClass);
-            LocatedLang locatedLang;
-            if(value instanceof LocatedLang locatedValue){
-                locatedLang = locatedValue;
+            TranslatedLang translatedLang;
+            if(value instanceof TranslatedLang locatedValue){
+                translatedLang = locatedValue;
             } else { // it must be null, read locate annotation
-                locatedLang = LangProcessUtils.getLocatedInfo(field);
+                translatedLang = LangProcessUtils.getLocatedInfo(field);
             }
 
-            locatedLang.key = builtKey;
-            genDataMethod.accept(locatedLang);
+            translatedLang.key = builtKey;
+            genDataMethod.accept(translatedLang);
 
             //erase the detailed location info
-            field.set(holderClass, locatedLang.erase());
+            field.set(holderClass, translatedLang.erase());
             field.setAccessible(false);
         }else{
             field.setAccessible(true);
             Lang[] array = (Lang[]) field.get(holderClass);
-            LocatedLang[] locatedLangs;
-            if(array instanceof LocatedLang[] locatedArray){
-                locatedLangs = locatedArray;
+            TranslatedLang[] translatedLangs;
+            if(array instanceof TranslatedLang[] locatedArray){
+                translatedLangs = locatedArray;
             } else { // it must be null, read locate annotation
-                locatedLangs = LangProcessUtils.getLocatedInfos(field);
+                translatedLangs = LangProcessUtils.getLocatedInfos(field);
             }
 
-            for(int i = 0; i < locatedLangs.length; i++) {
-                locatedLangs[i].key = LangProcessUtils.buildKeyWithIndex(builtKey, i);
-                genDataMethod.accept(locatedLangs[i]);
+            for(int i = 0; i < translatedLangs.length; i++) {
+                translatedLangs[i].key = LangProcessUtils.buildKeyWithIndex(builtKey, i);
+                genDataMethod.accept(translatedLangs[i]);
             }
 
             //erase the detailed location info
-            Lang[] erasedArray = new Lang[locatedLangs.length];
-            for(int i = 0; i < locatedLangs.length; i++) erasedArray[i] = locatedLangs[i].erase();
+            Lang[] erasedArray = new Lang[translatedLangs.length];
+            for(int i = 0; i < translatedLangs.length; i++) erasedArray[i] = translatedLangs[i].erase();
             field.set(holderClass, erasedArray);
             field.setAccessible(false);
         }
-    }
-    private void genLangData(LocatedLang lang){
-        for(var locate : lang.locates)
-            processedData.computeIfAbsent(locate.location(), __ -> new Object2ObjectArrayMap<>()).put(lang.key, locate.value());
     }
 }
