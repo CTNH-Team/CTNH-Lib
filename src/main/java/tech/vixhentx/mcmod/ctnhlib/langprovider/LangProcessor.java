@@ -1,7 +1,7 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
 import com.tterrag.registrate.providers.RegistrateLangProvider;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraftforge.fml.loading.FMLLoader;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
@@ -13,26 +13,24 @@ import java.util.function.Consumer;
 public class LangProcessor {
     final String modid;
     public final DomainList domainList = new DomainList();
-    public final Map<String, RegistrateLangProvider> langProviders = new Object2ObjectOpenHashMap<>();
-    public final Consumer<LocatedLang> genDataMethod;
+    public final Map<String, Map<String, String>> processedData = new HashMap<>();
+    private final Consumer<LocatedLang> genDataMethod;
 
     public LangProcessor(String modid){
         this.modid = modid;
         boolean isDataGen = FMLLoader.getLaunchHandler().isData();
         genDataMethod = isDataGen? this::genLangData : __ -> {};
     }
-    public void registerLangProvider(String location, RegistrateLangProvider provider){
-        langProviders.put(location, provider);
-    }
-    public void process(){
-        processAnnotated();
-        dispose();
-    }
     public void dispose(){
-        langProviders.clear();
         domainList.dispose();
     }
-    private void processAnnotated(){
+    public void genForLocation(String location, RegistrateLangProvider provider){
+        for(var entry : processedData.get(location).entrySet()){
+            provider.add(entry.getKey(), entry.getValue());
+        }
+        processedData.remove(location);
+    }
+    public void process(){
         for(var entry : domainList.entries()){
             var domain = entry.getKey();
             var classes = entry.getValue();
@@ -84,6 +82,7 @@ public class LangProcessor {
         String builtKey = LangProcessUtils.buildKey(prefixes, suffixes,domain,root,category,itemKey);
 
         if(!isArray){
+            field.setAccessible(true);
             Lang value = (Lang) field.get(holderClass);
             LocatedLang locatedLang;
             if(value instanceof LocatedLang locatedValue){
@@ -96,10 +95,10 @@ public class LangProcessor {
             genDataMethod.accept(locatedLang);
 
             //erase the detailed location info
-            field.setAccessible(true);
             field.set(holderClass, locatedLang.erase());
             field.setAccessible(false);
         }else{
+            field.setAccessible(true);
             Lang[] array = (Lang[]) field.get(holderClass);
             LocatedLang[] locatedLangs;
             if(array instanceof LocatedLang[] locatedArray){
@@ -116,15 +115,12 @@ public class LangProcessor {
             //erase the detailed location info
             Lang[] erasedArray = new Lang[locatedLangs.length];
             for(int i = 0; i < locatedLangs.length; i++) erasedArray[i] = locatedLangs[i].erase();
-            field.setAccessible(true);
             field.set(holderClass, erasedArray);
             field.setAccessible(false);
         }
     }
     private void genLangData(LocatedLang lang){
-        //if crashed here, it means the lang provider is not registered
-        for(Located locate : lang.locates){
-            langProviders.get(locate.location()).add(lang.key, locate.value());
-        }
+        for(var locate : lang.locates)
+            processedData.computeIfAbsent(locate.location(), __ -> new Object2ObjectArrayMap<>()).put(lang.key, locate.value());
     }
 }
