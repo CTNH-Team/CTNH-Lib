@@ -23,15 +23,28 @@ public class LangProcessor {
     }
 
     public void process(Class<?> clazz){
-        String category, domain, className;
-        className = clazz.getSimpleName();
-        Domain domainAnnotation = clazz.getAnnotation(Domain.class);
-        category = LangProcessUtils.getCategory(domainAnnotation,className);
-        domain = domainAnnotation.value();
-        var root = LangProcessUtils.getRoot(domainAnnotation, modid);
-
+        String category="", domain="", className, root="";
         LinkedList<String> prefixes = new LinkedList<>();
         LinkedList<String> suffixes = new LinkedList<>();
+
+        className = clazz.getSimpleName();
+
+        Domain domainAnnotation = clazz.getAnnotation(Domain.class);
+        if(domainAnnotation != null) {
+            category = LangProcessUtils.getCategory(domainAnnotation, className);
+            domain = domainAnnotation.value();
+            root = LangProcessUtils.getRoot(domainAnnotation, modid);
+        }
+        Prefix prefixAnnotation = clazz.getAnnotation(Prefix.class);
+        if(prefixAnnotation != null) {
+            String prefix = LangProcessUtils.getPrefix(prefixAnnotation,clazz::getSimpleName);
+            prefixes.addLast(prefix);
+        }
+        Suffix suffixAnnotation = clazz.getAnnotation(Suffix.class);
+        if(suffixAnnotation != null) {
+            String suffix = LangProcessUtils.getSuffix(suffixAnnotation,clazz::getSimpleName);
+            suffixes.addLast(suffix);
+        }
 
         //dfs
         processCurrent(clazz, prefixes, suffixes, domain, root, category);
@@ -49,24 +62,15 @@ public class LangProcessor {
 
         for (var clazzInClazz : current.getDeclaredClasses()){
             Prefix prefix = clazzInClazz.getAnnotation(Prefix.class);
-            if(prefix!= null) processPrefix(clazzInClazz, prefix, prefixes, suffixes, domain, root, category);
-            else {
-                Suffix suffix = clazzInClazz.getAnnotation(Suffix.class);
-                if (suffix != null) processSuffix(clazzInClazz, suffix, prefixes, suffixes, domain, root, category);
+            Suffix suffix = clazzInClazz.getAnnotation(Suffix.class);
+            if(prefix != null || suffix != null){
+                if(prefix!= null) prefixes.addLast(LangProcessUtils.getPrefix(prefix,clazzInClazz::getSimpleName));
+                if(suffix != null) suffixes.addLast(LangProcessUtils.getSuffix(suffix,clazzInClazz::getSimpleName));
+                processCurrent(clazzInClazz, prefixes, suffixes, domain, root, category);
+                if(prefix != null) prefixes.removeLast();
+                if(suffix != null) suffixes.removeLast();
             }
         }
-    }
-    private void processPrefix(Class<?> clazz, Prefix prefixAnnotation, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
-        String prefix = LangProcessUtils.getPrefix(prefixAnnotation,clazz::getSimpleName);
-        prefixes.addLast(prefix);
-        processCurrent(clazz, prefixes, suffixes,domain, root, category);
-        prefixes.removeLast();
-    }
-    private void processSuffix(Class<?> clazz, Suffix suffixAnnotation, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
-        String suffix = LangProcessUtils.getSuffix(suffixAnnotation,clazz::getSimpleName);
-        suffixes.addLast(suffix);
-        processCurrent(clazz, prefixes, suffixes, domain, root, category);
-        suffixes.removeLast();
     }
     private void processLang(Field field,Class<?> holderClass, boolean isArray, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category)
             throws IllegalAccessException {

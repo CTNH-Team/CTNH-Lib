@@ -40,9 +40,12 @@ class LangProcessUtils {
         for (var prefix : prefixes)
             builder.add(prefix);
 
-        builder.add(domain)
-                .add(root)
-                .add(category);
+        if(!domain.isEmpty())
+            builder.add(domain);
+        if(!root.isEmpty())
+            builder.add(root);
+        if(!category.isEmpty())
+            builder.add(category);
 
         for (var suffix : suffixes)
             builder.add(suffix);

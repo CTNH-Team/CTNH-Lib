@@ -23,7 +23,7 @@ public class BaseRegistrate extends GTRegistrate {
     private final LangProcessor langProcessor;
     private final ObjectSet<Class<?>> langProcessed = new ObjectOpenHashSet<>();
 
-    /// @param clazz the class with @Domain to process lang
+    /// @param clazz the class to process lang
     public BaseRegistrate addLang(Class<?> clazz){
         if(langProcessed.add(clazz))
             langProcessor.process(clazz);
