@@ -3,6 +3,8 @@ package tech.vixhentx.mcmod.ctnhlib.registrate;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.*;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
 
 import java.util.function.Function;
@@ -19,9 +21,12 @@ public class BaseRegistrate extends GTRegistrate {
     }
 
     private final LangProcessor langProcessor;
+    private final ObjectSet<Class<?>> langProcessed = new ObjectOpenHashSet<>();
 
+    /// @param clazz the class with @Domain to process lang
     public BaseRegistrate addLang(Class<?> clazz){
-        langProcessor.process(clazz);
+        if(langProcessed.add(clazz))
+            langProcessor.process(clazz);
         return this;
     }
 }
