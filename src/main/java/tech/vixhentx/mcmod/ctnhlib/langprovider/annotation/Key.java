@@ -1,0 +1,13 @@
+package tech.vixhentx.mcmod.ctnhlib.langprovider.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+/// Must annotate on Lang type or its array field
+public @interface Key {
+    String value();
+}
