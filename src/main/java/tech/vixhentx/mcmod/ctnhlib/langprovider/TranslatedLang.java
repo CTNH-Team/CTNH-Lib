@@ -7,18 +7,12 @@ import java.util.List;
 
 public final class TranslatedLang extends Lang{
 
-    public final String translation;
+    public final String en_translation, cn_translation;
 
-    public TranslatedLang(String translation) {
-        this.translation = translation;
+    public TranslatedLang(String en_translation, String cn_translation) {
+        this.en_translation = en_translation;
+        this.cn_translation = cn_translation;
     }
-    public static TranslatedLang of(String translation) {
-        return new TranslatedLang(translation);
-    }
-    public Pair<String,String> pair() {
-        return Pair.of(key, translation);
-    }
-
 
     Lang erase() {
         return new Lang(key);

@@ -1,13 +1,14 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
-import com.tterrag.registrate.AbstractRegistrate;
-import net.minecraftforge.fml.loading.FMLLoader;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
+import tech.vixhentx.mcmod.ctnhlib.registrate.BaseRegistrate;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Consumer;
+
+import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
 
 public class LangProcessor {
     final String modid;
@@ -15,39 +16,16 @@ public class LangProcessor {
 
     public LangProcessor(String modid, Consumer<TranslatedLang> dataGenerator){
         this.modid = modid;
-        boolean isDataGen = FMLLoader.getLaunchHandler().isData();
         genDataMethod = isDataGen? dataGenerator : __ -> {};
     }
-    public LangProcessor(AbstractRegistrate<?> registrate){
-        this(registrate.getModid(),(lang)->registrate.addRawLang(lang.key, lang.translation));
+    public LangProcessor(BaseRegistrate registrate){
+        this(registrate.getModid(),(lang)->registrate.addRawLang(lang.key, lang.en_translation, lang.cn_translation));
     }
 
     public void process(Class<?> clazz){
-        String category="", domain="", className, root="";
         LinkedList<String> prefixes = new LinkedList<>();
         LinkedList<String> suffixes = new LinkedList<>();
-
-        className = clazz.getSimpleName();
-
-        Domain domainAnnotation = clazz.getAnnotation(Domain.class);
-        if(domainAnnotation != null) {
-            category = LangProcessUtils.getCategory(domainAnnotation, className);
-            domain = domainAnnotation.value();
-            root = LangProcessUtils.getRoot(domainAnnotation, modid);
-        }
-        Prefix prefixAnnotation = clazz.getAnnotation(Prefix.class);
-        if(prefixAnnotation != null) {
-            String prefix = LangProcessUtils.getPrefix(prefixAnnotation,clazz::getSimpleName);
-            prefixes.addLast(prefix);
-        }
-        Suffix suffixAnnotation = clazz.getAnnotation(Suffix.class);
-        if(suffixAnnotation != null) {
-            String suffix = LangProcessUtils.getSuffix(suffixAnnotation,clazz::getSimpleName);
-            suffixes.addLast(suffix);
-        }
-
-        //dfs
-        processCurrent(clazz, prefixes, suffixes, domain, root, category);
+        processCurrent(clazz, prefixes, suffixes, "", "", "");
     }
     private void processCurrent(Class<?> current, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category){
         for (var field : current.getDeclaredFields())
@@ -61,15 +39,20 @@ public class LangProcessor {
             }
 
         for (var clazzInClazz : current.getDeclaredClasses()){
+            Domain domainAnnotation = clazzInClazz.getAnnotation(Domain.class);
+            String d = domain ,r=root, c=category;
+            if(domainAnnotation != null){
+                c = LangProcessUtils.getCategory(domainAnnotation, clazzInClazz.getSimpleName());
+                d = domainAnnotation.value();
+                r = LangProcessUtils.getRoot(domainAnnotation, root);
+            }
             Prefix prefix = clazzInClazz.getAnnotation(Prefix.class);
             Suffix suffix = clazzInClazz.getAnnotation(Suffix.class);
-            if(prefix != null || suffix != null){
-                if(prefix!= null) prefixes.addLast(LangProcessUtils.getPrefix(prefix,clazzInClazz::getSimpleName));
-                if(suffix != null) suffixes.addLast(LangProcessUtils.getSuffix(suffix,clazzInClazz::getSimpleName));
-                processCurrent(clazzInClazz, prefixes, suffixes, domain, root, category);
-                if(prefix != null) prefixes.removeLast();
-                if(suffix != null) suffixes.removeLast();
-            }
+            if(prefix!= null) prefixes.addLast(LangProcessUtils.getPrefix(prefix,clazzInClazz::getSimpleName));
+            if(suffix != null) suffixes.addLast(LangProcessUtils.getSuffix(suffix,clazzInClazz::getSimpleName));
+            processCurrent(clazzInClazz, prefixes, suffixes, d, r, c);
+            if(prefix != null) prefixes.removeLast();
+            if(suffix != null) suffixes.removeLast();
         }
     }
     private void processLang(Field field,Class<?> holderClass, boolean isArray, LinkedList<String> prefixes, LinkedList<String> suffixes, String domain, String root, String category)
