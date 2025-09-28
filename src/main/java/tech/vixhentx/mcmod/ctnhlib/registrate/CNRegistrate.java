@@ -1,6 +1,8 @@
 package tech.vixhentx.mcmod.ctnhlib.registrate;
 
+import com.gregtechceu.gtceu.api.registry.registrate.GTBlockBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
+import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -8,8 +10,13 @@ import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.apache.commons.lang3.tuple.Pair;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
+import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHBlockBuilder;
+import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHItemBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +24,37 @@ import java.util.List;
 import static tech.vixhentx.mcmod.ctnhlib.registrate.data.ProviderTypes.CNLANG;
 import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
 
-public class BaseRegistrate extends GTRegistrate {
+public class CNRegistrate extends GTRegistrate {
     /**
      * Construct a new Registrate for the given mod ID.
      *
      * @param modid The mod ID for which objects will be registered
      */
-    protected BaseRegistrate(String modid) {
+    protected CNRegistrate(String modid) {
         super(modid);
         this.langProcessor = new LangProcessor(this);
+    }
+
+    public <T extends Item> CTNHItemBuilder<T, GTRegistrate> item(String name, NonNullFunction<Item.Properties, T> factory) {
+        return item(self(), name, factory);
+    }
+
+
+    public <T extends Item, P> CTNHItemBuilder<T, P> item(P parent, String name, NonNullFunction<Item.Properties, T> factory) {
+        return (CTNHItemBuilder<T, P>) entry(name, callback -> CTNHItemBuilder.create(this, parent, name, callback, factory));
+    }
+
+    @Override
+    public <T extends Block> CTNHBlockBuilder<T, GTRegistrate> block(String name,
+                                                                   NonNullFunction<BlockBehaviour.Properties, T> factory) {
+        return block(this, name, factory);
+    }
+
+    @Override
+    public <T extends Block, P> CTNHBlockBuilder<T, P> block(P parent, String name,
+                                                           NonNullFunction<BlockBehaviour.Properties, T> factory) {
+        return (CTNHBlockBuilder<T, P>) entry(name,
+                callback -> CTNHBlockBuilder.create(this, parent, name, callback, factory));
     }
 
     private final LangProcessor langProcessor;
@@ -71,7 +100,7 @@ public class BaseRegistrate extends GTRegistrate {
 
     //Lang Processor
     /// @param clazz the class to process lang
-    public BaseRegistrate addLang(Class<?> clazz){
+    public CNRegistrate addLang(Class<?> clazz){
         if(langProcessed.add(clazz))
             langProcessor.process(clazz);
         return this;

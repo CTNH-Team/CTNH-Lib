@@ -2,7 +2,7 @@ package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
-import tech.vixhentx.mcmod.ctnhlib.registrate.BaseRegistrate;
+import tech.vixhentx.mcmod.ctnhlib.registrate.CNRegistrate;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -18,7 +18,7 @@ public class LangProcessor {
         this.modid = modid;
         genDataMethod = isDataGen? dataGenerator : __ -> {};
     }
-    public LangProcessor(BaseRegistrate registrate){
+    public LangProcessor(CNRegistrate registrate){
         this(registrate.getModid(),(lang)->registrate.addRawLang(lang.key, lang.en_translation, lang.cn_translation));
     }
 
