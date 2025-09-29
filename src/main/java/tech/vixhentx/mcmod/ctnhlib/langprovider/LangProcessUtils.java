@@ -1,5 +1,6 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
+import net.minecraftforge.forgespi.language.ModFileScanData;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
 
@@ -63,16 +64,65 @@ class LangProcessUtils {
         if(en==null&&cn==null) throw new IllegalArgumentException("Lang must have @EN or @CN annotation, or TranslatedLang literal.");
         return new TranslatedLang(ofNullable(en,()->warnForFieldNoValue(field)), ofNullable(cn,()->warnForFieldNoValue(field)));
     }
-    static TranslatedLang[] getLocatedInfos(Field field){
-        String[] ens = field.getAnnotation(EN.class).value();
-        String[] cns = field.getAnnotation(CN.class).value();
-        if(ens.length!= cns.length) warnForFieldIncorrectCount(field);
-        var ret = new TranslatedLang[ens.length];
-        for(int i = 0; i < Integer.min(ens.length, cns.length); i++){
-            ret[i] = new TranslatedLang(ofNullable(ens[i],()->warnForFieldNoValue(field)), ofNullable(cns[i],()->warnForFieldNoValue(field)));
+
+    static TranslatedLang getLocatedInfo(ModFileScanData.AnnotationData enData,
+                                         ModFileScanData.AnnotationData cnData,
+                                         String fallbackOwner,
+                                         String fallbackField) {
+        String[] en = extractStringArray(enData);
+        String[] cn = extractStringArray(cnData);
+
+        if(en == null && cn == null) {
+            warnForFieldNoValue(fallbackOwner, fallbackField);
+            return new TranslatedLang("", "");
+        }
+
+        return new TranslatedLang(
+                ofNullable(en, () -> warnForFieldNoValue(fallbackOwner, fallbackField)),
+                ofNullable(cn, () -> warnForFieldNoValue(fallbackOwner, fallbackField))
+        );
+    }
+
+    static TranslatedLang[] getLocatedInfos(ModFileScanData.AnnotationData enData,
+                                            ModFileScanData.AnnotationData cnData,
+                                            String fallbackOwner,
+                                            String fallbackField) {
+        String[] ens = extractStringArray(enData);
+        String[] cns = extractStringArray(cnData);
+
+        if(ens == null || cns == null) {
+            warnForFieldNoValue(fallbackOwner, fallbackField);
+            return new TranslatedLang[0];
+        }
+
+        if(ens.length != cns.length) {
+            warnForFieldIncorrectCount(fallbackOwner, fallbackField);
+        }
+
+        int len = Math.min(ens.length, cns.length);
+        TranslatedLang[] ret = new TranslatedLang[len];
+        for(int i = 0; i < len; i++) {
+            ret[i] = new TranslatedLang(
+                    ofNullable(ens[i], () -> warnForFieldNoValue(fallbackOwner, fallbackField)),
+                    ofNullable(cns[i], () -> warnForFieldNoValue(fallbackOwner, fallbackField))
+            );
         }
         return ret;
     }
+
+    static String[] extractStringArray(ModFileScanData.AnnotationData data) {
+        if(data == null) return null;
+        Object val = data.annotationData().get("value");
+        if(val == null) return null;
+
+        if(val instanceof String s) return new String[]{s};
+        if(val instanceof String[] arr) return arr;
+        if(val instanceof List<?> list) {
+            return list.stream().map(Object::toString).toArray(String[]::new);
+        }
+        return null;
+    }
+
     static String ofNullable(String[] str, Runnable nullWarning){
         if(str==null){
             nullWarning.run();
@@ -87,12 +137,16 @@ class LangProcessUtils {
         }
         return str;
     }
+    static void warnForFieldNoValue(String owner, String field){
+        CTNHLib.LOGGER.error("Field {} in class {} has no @EN or @CN annotation value.", field, owner);
+    }
+    static void warnForFieldIncorrectCount(String owner, String field){
+        CTNHLib.LOGGER.error("The number of @EN and @CN annotations must be the same in field {} in class {}", field, owner);
+    }
     static void warnForFieldNoValue(Field field){
         CTNHLib.LOGGER.error("Field {} in class {} has no @EN or @CN annotation, or TranslatedLang literal.", field.getName(), field.getDeclaringClass().getName());
     }
-    static void warnForFieldIncorrectCount(Field field){
-        CTNHLib.LOGGER.error("The number of @EN and @CN annotations must be the same in field {} in class {}", field.getName(), field.getDeclaringClass().getName());
-    }
+
     static void warnForIncorrectCount(){
         CTNHLib.LOGGER.error("The number of en lang and cn lang must be the same in all fields.");
     }

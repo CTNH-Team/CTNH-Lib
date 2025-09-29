@@ -2,6 +2,7 @@ package tech.vixhentx.mcmod.ctnhlib.registrate;
 
 import com.gregtechceu.gtceu.api.registry.registrate.GTBlockBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
+import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -93,16 +94,24 @@ public class CNRegistrate extends GTRegistrate {
         return addRawCNLang(Util.makeDescriptionId(type, id) + "." + suffix, cn);
     }
 
-    public MutableComponent addRawLang(String key, String en, String cn) {
-        addRawLang(key, en);
-        return addRawCNLang(key, cn);
+    public void addRawLang(String key, String en, String cn) {
+        if(!en.isEmpty()) addRawLang(key, en);
+        if(!cn.isEmpty()) addRawCNLang(key, cn);
+    }
+
+    public CNRegistrate addLangProcessor() {
+        this.addDataGenerator(ProviderType.LANG, prov -> {
+            LangProcessor processor = new LangProcessor(this);
+            processor.processAll();
+        });
+        return this;
     }
 
     //Lang Processor
     /// @param clazz the class to process lang
-    public CNRegistrate addLang(Class<?> clazz){
-        if(langProcessed.add(clazz))
-            langProcessor.process(clazz);
-        return this;
-    }
+//    public CNRegistrate addLang(Class<?> clazz){
+//        if(langProcessed.add(clazz))
+//            langProcessor.process(clazz);
+//        return this;
+//    }
 }
