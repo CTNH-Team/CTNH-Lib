@@ -5,6 +5,7 @@
     "compatibilityLevel": "JAVA_8",
     "refmap": "ctnhlib.refmap.json",
     "mixins": [
+        "MachineBuilderMixin"
     ],
     "client": [
     ],

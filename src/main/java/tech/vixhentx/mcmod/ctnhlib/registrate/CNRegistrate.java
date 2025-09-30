@@ -1,26 +1,39 @@
 package tech.vixhentx.mcmod.ctnhlib.registrate;
 
+import com.gregtechceu.gtceu.api.block.IMachineBlock;
+import com.gregtechceu.gtceu.api.item.MetaMachineItem;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.MachineDefinition;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.registry.registrate.GTBlockBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
+import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.tuple.Pair;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
 import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHBlockBuilder;
 import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHItemBuilder;
+import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHMachineBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static tech.vixhentx.mcmod.ctnhlib.registrate.data.ProviderTypes.CNLANG;
 import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
@@ -57,6 +70,28 @@ public class CNRegistrate extends GTRegistrate {
         return (CTNHBlockBuilder<T, P>) entry(name,
                 callback -> CTNHBlockBuilder.create(this, parent, name, callback, factory));
     }
+
+    public <DEFINITION extends MachineDefinition> CTNHMachineBuilder<DEFINITION> machine(String name,
+                                                                                         Function<ResourceLocation, DEFINITION> definitionFactory,
+                                                                                         Function<IMachineBlockEntity, MetaMachine> metaMachine,
+                                                                                         BiFunction<BlockBehaviour.Properties, DEFINITION, IMachineBlock> blockFactory,
+                                                                                         BiFunction<IMachineBlock, Item.Properties, MetaMachineItem> itemFactory,
+                                                                                         TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory) {
+        return new CTNHMachineBuilder<>(this, name, definitionFactory, metaMachine,
+                blockFactory, itemFactory, blockEntityFactory);
+    }
+
+    public <DEFINITION extends MachineDefinition> CTNHMachineBuilder<DEFINITION> machine(String name,
+                                                                                         String cnname,
+                                                                                         Function<ResourceLocation, DEFINITION> definitionFactory,
+                                                                                         Function<IMachineBlockEntity, MetaMachine> metaMachine,
+                                                                                         BiFunction<BlockBehaviour.Properties, DEFINITION, IMachineBlock> blockFactory,
+                                                                                         BiFunction<IMachineBlock, Item.Properties, MetaMachineItem> itemFactory,
+                                                                                         TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory) {
+        return new CTNHMachineBuilder<>(this, name, cnname, definitionFactory, metaMachine,
+                blockFactory, itemFactory, blockEntityFactory);
+    }
+
 
     private final LangProcessor langProcessor;
     private final ObjectSet<Class<?>> langProcessed = new ObjectOpenHashSet<>();

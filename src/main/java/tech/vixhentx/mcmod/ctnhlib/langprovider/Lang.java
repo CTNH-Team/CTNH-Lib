@@ -1,6 +1,7 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public sealed class Lang permits TranslatedLang {
     //inject by processor
@@ -13,7 +14,7 @@ public sealed class Lang permits TranslatedLang {
     }
 
     //simplify translation
-    public Component translate(Object... args){
+    public MutableComponent translate(Object... args){
         return Component.translatable(key, args);
     }
 
