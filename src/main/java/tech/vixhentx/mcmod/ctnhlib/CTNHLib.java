@@ -9,6 +9,7 @@ import tech.vixhentx.mcmod.ctnhlib.client.ClientProxy;
 import tech.vixhentx.mcmod.ctnhlib.common.CommonProxy;
 
 @Mod(CTNHLib.MODID)
+@SuppressWarnings("removal")
 public class CTNHLib {
     public static final String MODID = "ctnhlib";
 
