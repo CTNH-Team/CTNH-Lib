@@ -1,18 +1,19 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "tech.vixhentx.mcmod.ctnhlib.mixin",
-    "compatibilityLevel": "JAVA_8",
-    "refmap": "ctnhlib.refmap.json",
-    "mixins": [
-        "MachineBuilderMixin"
-    ],
-    "client": [
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    },
-    "overwrites": {
-        "requireAnnotations": true
-    }
+  "required": true,
+  "minVersion": "0.8",
+  "package": "tech.vixhentx.mcmod.ctnhlib.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "ctnhlib.refmap.json",
+  "mixins": [
+    "GTJadePluginMixin",
+    "MachineBuilderMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }
