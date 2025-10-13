@@ -1,13 +1,18 @@
 package tech.vixhentx.mcmod.ctnhlib.registrate;
 
+import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
 import com.gregtechceu.gtceu.api.item.MetaMachineItem;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeSerializer;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTBlockBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
+import com.tterrag.registrate.builders.EntityBuilder;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
@@ -15,10 +20,15 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -26,9 +36,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.tuple.Pair;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
-import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHBlockBuilder;
-import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHItemBuilder;
-import tech.vixhentx.mcmod.ctnhlib.registrate.builders.CTNHMachineBuilder;
+import tech.vixhentx.mcmod.ctnhlib.registrate.builders.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +79,21 @@ public class CNRegistrate extends GTRegistrate {
                 callback -> CTNHBlockBuilder.create(this, parent, name, callback, factory));
     }
 
+    public <T extends Entity, P> CTNHEntityBuilder<T, P> entity(P parent, String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+        return (CTNHEntityBuilder<T, P>)this.entry(name,
+                (callback) -> CTNHEntityBuilder.create(this, parent, name, callback, factory, classification));
+    }
+
+//    @Override
+//    public <T extends Entity> CTNHEntityBuilder<T, GTRegistrate> entity(EntityType.EntityFactory<T> factory, MobCategory classification) {
+//        return super.entity(factory, classification);
+//    }
+
+    @Override
+    public <T extends Entity> CTNHEntityBuilder<T, GTRegistrate> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+        return this.entity(this.self(), name, factory, classification);
+    }
+
     public <DEFINITION extends MachineDefinition> CTNHMachineBuilder<DEFINITION> machine(String name,
                                                                                          Function<ResourceLocation, DEFINITION> definitionFactory,
                                                                                          Function<IMachineBlockEntity, MetaMachine> metaMachine,
@@ -90,6 +113,18 @@ public class CNRegistrate extends GTRegistrate {
                                                                                          TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory) {
         return new CTNHMachineBuilder<>(this, name, cnname, definitionFactory, metaMachine,
                 blockFactory, itemFactory, blockEntityFactory);
+    }
+
+    public CTNHMaterial.Builder material(ResourceLocation resourceLocation){
+        return new CTNHMaterial.Builder(this, resourceLocation);
+    }
+
+    public CTNHRecipeType recipeType(ResourceLocation resourceLocation, String group, RecipeType<?>... proxyRecipes){
+        var recipeType = new CTNHRecipeType(this, resourceLocation, group, proxyRecipes);
+        GTRegistries.register(BuiltInRegistries.RECIPE_TYPE, recipeType.registryName, recipeType);
+        GTRegistries.register(BuiltInRegistries.RECIPE_SERIALIZER, recipeType.registryName, new GTRecipeSerializer());
+        GTRegistries.RECIPE_TYPES.register(recipeType.registryName, recipeType);
+        return recipeType;
     }
 
 
