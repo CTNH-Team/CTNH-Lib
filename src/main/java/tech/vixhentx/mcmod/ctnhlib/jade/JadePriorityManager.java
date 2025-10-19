@@ -49,6 +49,19 @@ public final class JadePriorityManager {
         }
     }
 
+    public static boolean unregisterBlockData(String id) {
+        synchronized (BLOCK_DATA) {
+            return BLOCK_DATA.removeIf(r -> r.id().equals(id));
+        }
+    }
+
+    /** 卸载指定 id 的 BlockComponent 注册 */
+    public static boolean unregisterBlockComponent(String id) {
+        synchronized (BLOCK_COMPONENT) {
+            return BLOCK_COMPONENT.removeIf(r -> r.id().equals(id));
+        }
+    }
+
     public record JadeBlockDataRegistration(IServerDataProvider<BlockAccessor> provider,
                                             Class<? extends BlockEntity> target, int priority,
                                             String id) implements Comparable<JadeBlockDataRegistration> {
