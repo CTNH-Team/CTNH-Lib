@@ -2,10 +2,14 @@ package tech.vixhentx.mcmod.ctnhlib.registrate;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
+import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
+import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.item.MetaMachineItem;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
+import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeSerializer;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
@@ -113,6 +117,18 @@ public class CNRegistrate extends GTRegistrate {
                                                                                          TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory) {
         return new CTNHMachineBuilder<>(this, name, cnname, definitionFactory, metaMachine,
                 blockFactory, itemFactory, blockEntityFactory);
+    }
+
+    public CTNHMultiblockMachineBuilder multiblock(String name, Function<IMachineBlockEntity, ? extends MultiblockControllerMachine> metaMachine) {
+        return multiblock(name, metaMachine, MetaMachineBlock::new, MetaMachineItem::new, MetaMachineBlockEntity::new);
+    }
+
+    public CTNHMultiblockMachineBuilder multiblock(String name,
+                                                   Function<IMachineBlockEntity, ? extends MultiblockControllerMachine> metaMachine,
+                                                   BiFunction<BlockBehaviour.Properties, MultiblockMachineDefinition, IMachineBlock> blockFactory,
+                                                   BiFunction<IMachineBlock, Item.Properties, MetaMachineItem> itemFactory,
+                                                   TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory){
+        return new CTNHMultiblockMachineBuilder(this, name, metaMachine, blockFactory, itemFactory, blockEntityFactory);
     }
 
     public CTNHMaterial.Builder material(ResourceLocation resourceLocation){
