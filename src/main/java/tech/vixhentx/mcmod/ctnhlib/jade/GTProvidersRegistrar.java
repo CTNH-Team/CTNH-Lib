@@ -22,7 +22,7 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockData(new ElectricContainerBlockProvider(), BlockEntity.class, 1100, "electric_container_data");
         JadePriorityManager.registerBlockData(new WorkableBlockProvider(), BlockEntity.class, 1200, "workable_data");
         JadePriorityManager.registerBlockData(new ControllableBlockProvider(), BlockEntity.class, 1300, "controllable_data");
-        JadePriorityManager.registerBlockData(new RecipeLogicProvider(), BlockEntity.class, 1400, "recipe_logic_data");
+        //JadePriorityManager.registerBlockData(new RecipeLogicProvider(), BlockEntity.class, 1400, "recipe_logic_data");
         JadePriorityManager.registerBlockData(new ParallelProvider(), BlockEntity.class, 1500, "parallel_data");
         JadePriorityManager.registerBlockData(new RecipeOutputProvider(), BlockEntity.class, 1600, "recipe_output_data");
         JadePriorityManager.registerBlockData(new MultiblockStructureProvider(), BlockEntity.class, 1700, "multiblock_structure_data");
@@ -48,7 +48,7 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockComponent(new ElectricContainerBlockProvider(), Block.class, 1100, "electric_container_component");
         JadePriorityManager.registerBlockComponent(new WorkableBlockProvider(), Block.class, 1200, "workable_component");
         JadePriorityManager.registerBlockComponent(new ControllableBlockProvider(), Block.class, 1300, "controllable_component");
-        JadePriorityManager.registerBlockComponent(new RecipeLogicProvider(), Block.class, 1400, "recipe_logic_component");
+        //JadePriorityManager.registerBlockComponent(new RecipeLogicProvider(), Block.class, 1400, "recipe_logic_component");
         JadePriorityManager.registerBlockComponent(new ParallelProvider(), Block.class, 1500, "parallel_component");
         JadePriorityManager.registerBlockComponent(new RecipeOutputProvider(), Block.class, 1600, "recipe_output_component");
         JadePriorityManager.registerBlockComponent(new MultiblockStructureProvider(), Block.class, 1700, "multiblock_structure_component");
