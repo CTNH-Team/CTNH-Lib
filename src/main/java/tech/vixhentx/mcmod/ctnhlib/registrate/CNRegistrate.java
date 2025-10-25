@@ -135,6 +135,10 @@ public class CNRegistrate extends GTRegistrate {
         return new CTNHMaterial.Builder(this, resourceLocation);
     }
 
+    public CTNHRecipeType recipeType(String name, String group, RecipeType<?>... proxyRecipes){
+        return recipeType(GTCEu.id(name), group, proxyRecipes);
+    }
+
     public CTNHRecipeType recipeType(ResourceLocation resourceLocation, String group, RecipeType<?>... proxyRecipes){
         var recipeType = new CTNHRecipeType(this, resourceLocation, group, proxyRecipes);
         GTRegistries.register(BuiltInRegistries.RECIPE_TYPE, recipeType.registryName, recipeType);
