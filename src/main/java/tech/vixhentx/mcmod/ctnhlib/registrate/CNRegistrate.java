@@ -108,6 +108,12 @@ public class CNRegistrate extends GTRegistrate {
                 blockFactory, itemFactory, blockEntityFactory);
     }
 
+    @Override
+    public CTNHMachineBuilder<MachineDefinition> machine(String name, Function<IMachineBlockEntity, MetaMachine> metaMachine) {
+        return new CTNHMachineBuilder<>(this, name, MachineDefinition::new, metaMachine,
+                MetaMachineBlock::new, MetaMachineItem::new, MetaMachineBlockEntity::new);
+    }
+
     public <DEFINITION extends MachineDefinition> CTNHMachineBuilder<DEFINITION> machine(String name,
                                                                                          String cnname,
                                                                                          Function<ResourceLocation, DEFINITION> definitionFactory,
