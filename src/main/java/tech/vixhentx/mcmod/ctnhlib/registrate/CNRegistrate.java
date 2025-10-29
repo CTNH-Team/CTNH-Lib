@@ -3,7 +3,10 @@ package tech.vixhentx.mcmod.ctnhlib.registrate;
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
 import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
+import com.gregtechceu.gtceu.api.block.OreBlock;
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
+import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconType;
+import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.item.MetaMachineItem;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
@@ -28,6 +31,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -47,6 +51,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.Conditions.hasOreProperty;
 import static tech.vixhentx.mcmod.ctnhlib.registrate.data.ProviderTypes.CNLANG;
 import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
 
@@ -151,6 +156,20 @@ public class CNRegistrate extends GTRegistrate {
         GTRegistries.register(BuiltInRegistries.RECIPE_SERIALIZER, recipeType.registryName, new GTRecipeSerializer());
         GTRegistries.RECIPE_TYPES.register(recipeType.registryName, recipeType);
         return recipeType;
+    }
+    public CTNHTagPrefix oreTagPrefix(String name, TagKey<Block> miningToolTag) {
+        return (CTNHTagPrefix) new CTNHTagPrefix(this, name)
+                .defaultTagPath("ores/%s")
+                .prefixOnlyTagPath("ores_in_ground/%s")
+                .unformattedTagPath("ores")
+                .materialIconType(MaterialIconType.ore)
+                .miningToolTag(miningToolTag)
+                .unificationEnabled(true)
+                .blockConstructor(OreBlock::new)
+                .generationCondition(hasOreProperty);
+    }
+    public CTNHTagPrefix tagPrefix(String name) {
+        return new CTNHTagPrefix(this, name);
     }
 
 
