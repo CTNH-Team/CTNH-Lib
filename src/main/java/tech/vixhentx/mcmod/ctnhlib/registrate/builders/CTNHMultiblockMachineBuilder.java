@@ -72,7 +72,7 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
         return cnLangValue;
     }
 
-    private String under_component="ctnhcore.copyright.info";
+    private String under_component = this.registrate.getModid() + ".copyright.info";
 
     public CTNHMultiblockMachineBuilder shapeInfo(Function<MultiblockMachineDefinition, MultiblockShapeInfo> shape) {
         super.shapeInfo(shape);
