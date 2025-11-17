@@ -44,7 +44,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.langprovider.Lang;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.*;
@@ -70,7 +72,7 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
         return cnLangValue;
     }
 
-    private String under_component="ctnh.copyright.info";
+    private String under_component="ctnhcore.copyright.info";
 
     public CTNHMultiblockMachineBuilder shapeInfo(Function<MultiblockMachineDefinition, MultiblockShapeInfo> shape) {
         super.shapeInfo(shape);
@@ -245,6 +247,14 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
 
     public CTNHMultiblockMachineBuilder tooltips(Component... components) {
         return (CTNHMultiblockMachineBuilder)super.tooltips(components);
+    }
+
+    public CTNHMultiblockMachineBuilder tooltips(Lang[] tooltip) {
+        List<Component> tooltips = new ArrayList<>();
+        for(var t: tooltip){
+            tooltips.add(t.translate());
+        }
+        return (CTNHMultiblockMachineBuilder)super.tooltips(tooltips);
     }
 
     public CTNHMultiblockMachineBuilder conditionalTooltip(Component component, Supplier<Boolean> condition) {

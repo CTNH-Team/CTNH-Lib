@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -62,9 +63,10 @@ public class MultiblockHelper extends ComponentItem implements IInteractionItem 
             for (int y = y1; y<=y2; y += 1) {
                 for (int x = x1; x<=x2; x += 1) {
                     // 处理点 (x, y, z)
-                    var Block = Objects.requireNonNull(level).getBlockState(new BlockPos(x,y,z)).getBlock();
+                    var block = Objects.requireNonNull(level).getBlockState(new BlockPos(x,y,z)).getBlock();
                     var state=Objects.requireNonNull(level).getBlockState(new BlockPos(x,y,z));
-                    String blockId = Block.toString().split("\\{|\\}")[1];
+                    String blockId = ForgeRegistries.BLOCKS.getKey(block).toString();
+
 
                     if (!legend.containsKey(blockId)) {
                         if (blockId.equals("minecraft:air") || blockId.equals("minecraft:glass")) {
