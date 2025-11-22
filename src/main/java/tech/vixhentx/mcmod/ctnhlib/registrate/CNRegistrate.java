@@ -47,6 +47,7 @@ import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
 import tech.vixhentx.mcmod.ctnhlib.registrate.builders.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -198,16 +199,45 @@ public class CNRegistrate extends GTRegistrate {
         return Component.translatable(key);
     }
 
+    public MutableComponent addRawCNLang(String key, String value, Object... args) {
+        if(isDataGen) {
+            extraCNLang.get().add(Pair.of(key, value));
+        }
+        return Component.translatable(key, args);
+    }
+
     //English and Chinese
     public MutableComponent addLang(String type, ResourceLocation id, String en, String cn) {
         addRawLang(Util.makeDescriptionId(type, id), en);
         return addRawCNLang(Util.makeDescriptionId(type, id), cn);
     }
 
-    public MutableComponent addLang(String type, ResourceLocation id, String suffix, String en, String cn) {
-        addRawLang(Util.makeDescriptionId(type, id) + "." + suffix, en);
-        return addRawCNLang(Util.makeDescriptionId(type, id) + "." + suffix, cn);
+    public HashSet<String> keys = new HashSet<>();
+
+    public MutableComponent genLang(String key, String en, String cn) {
+        if(keys.contains(key))
+            return Component.translatable(key);
+        else {
+            keys.add(key);
+            addRawLang(key, en);
+            return addRawCNLang(key, cn);
+        }
     }
+
+    public MutableComponent genLang(String key, String en, String cn, Object... args) {
+        if(keys.contains(key))
+            return Component.translatable(key, args);
+        else {
+            keys.add(key);
+            addRawLang(key, en);
+            return addRawCNLang(key, cn, args);
+        }
+
+    }
+//    public MutableComponent addLang(String type, ResourceLocation id, String suffix, String en, String cn) {
+//        addRawLang(Util.makeDescriptionId(type, id) + "." + suffix, en);
+//        return addRawCNLang(Util.makeDescriptionId(type, id) + "." + suffix, cn);
+//    }
 
     public void addRawLang(String key, String en, String cn) {
         if(!en.isEmpty()) addRawLang(key, en);
