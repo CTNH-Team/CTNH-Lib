@@ -25,6 +25,7 @@ import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
 import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import lombok.Generated;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -161,7 +162,7 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
         return (CTNHMultiblockMachineBuilder)super.tier(tier);
     }
 
-    public CTNHMultiblockMachineBuilder recipeOutputLimits(Object2IntMap<RecipeCapability<?>> map) {
+    public CTNHMultiblockMachineBuilder recipeOutputLimits(Reference2IntMap<RecipeCapability<?>> map) {
         return (CTNHMultiblockMachineBuilder)super.recipeOutputLimits(map);
     }
 
