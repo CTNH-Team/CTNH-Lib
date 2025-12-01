@@ -36,6 +36,7 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockData(new HazardCleanerBlockProvider(), BlockEntity.class, 2500, "hazard_cleaner_data");
         JadePriorityManager.registerBlockData(new TransformerBlockProvider(), BlockEntity.class, 2600, "transformer_data");
         JadePriorityManager.registerBlockData(new PrimitivePumpBlockProvider(), BlockEntity.class, 2700, "primitive_pump_data");
+        JadePriorityManager.registerBlockData(new DataBankBlockProvider(), BlockEntity.class, 2750, "databank_data");
         JadePriorityManager.registerBlockData(new EnergyConverterModeProvider(), BlockEntity.class, 2800, "energy_converter_mode_data");
 
         if (GTCEu.Mods.isAE2Loaded()) {
@@ -62,6 +63,7 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockComponent(new HazardCleanerBlockProvider(), Block.class, 2500, "hazard_cleaner_component");
         JadePriorityManager.registerBlockComponent(new TransformerBlockProvider(), Block.class, 2600, "transformer_component");
         JadePriorityManager.registerBlockComponent(new PrimitivePumpBlockProvider(), Block.class, 2700, "primitive_pump_component");
+        JadePriorityManager.registerBlockComponent(new DataBankBlockProvider(), Block.class, 2750, "databank_data");
         JadePriorityManager.registerBlockComponent(new EnergyConverterModeProvider(), Block.class, 2800, "energy_converter_mode_component");
 
         if (GTCEu.Mods.isAE2Loaded()) {
