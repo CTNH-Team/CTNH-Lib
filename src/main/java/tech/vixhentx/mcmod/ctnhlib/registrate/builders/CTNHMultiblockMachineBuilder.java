@@ -46,6 +46,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.Lang;
+import tech.vixhentx.mcmod.ctnhlib.registrate.CNRegistrate;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,13 +60,16 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
     @Nullable
     private String cnLangValue = null;
 
-    public CTNHMultiblockMachineBuilder(GTRegistrate registrate,
+    private final CNRegistrate cnRegistrate;
+
+    public CTNHMultiblockMachineBuilder(CNRegistrate registrate,
                                         String name,
                                         Function<IMachineBlockEntity, ? extends MultiblockControllerMachine> metaMachine,
                                         BiFunction<BlockBehaviour.Properties, MultiblockMachineDefinition, IMachineBlock> blockFactory,
                                         BiFunction<IMachineBlock, Item.Properties, MetaMachineItem> itemFactory,
                                         TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory) {
         super(registrate, name, metaMachine, blockFactory, itemFactory, blockEntityFactory);
+        cnRegistrate = registrate;
     }
 
     @Override
@@ -154,7 +158,12 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
 
     public CTNHMultiblockMachineBuilder recipeType(GTRecipeType recipeTypes) {
         var translationKey = recipeTypes.registryName.toLanguageKey();
-        this.tooltips(Component.translatable("ctnh.recipe_type.info", Component.translatable(translationKey)));
+        this.tooltips(cnRegistrate.genLang(
+                "ctnh.recipe_type.info",
+                "Recipe Type: %s",
+                "配方类型：%s",
+                Component.translatable(translationKey)
+        ));
         return (CTNHMultiblockMachineBuilder)super.recipeType(recipeTypes);
     }
 
