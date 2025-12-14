@@ -20,6 +20,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder;
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.ItemBuilder;
 import com.tterrag.registrate.util.nullness.NonNullConsumer;
@@ -156,15 +157,18 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
         return (CTNHMultiblockMachineBuilder) super.recipeTypes(recipeTypes);
     }
 
-    public CTNHMultiblockMachineBuilder recipeType(GTRecipeType recipeTypes) {
-        var translationKey = recipeTypes.registryName.toLanguageKey();
-        this.tooltips(cnRegistrate.genLang(
-                "ctnh.recipe_type.info",
-                "Recipe Type: %s",
-                "配方类型：%s",
-                Component.translatable(translationKey)
-        ));
-        return (CTNHMultiblockMachineBuilder)super.recipeType(recipeTypes);
+    public CTNHMultiblockMachineBuilder recipeType(GTRecipeType recipeType) {
+        if(recipeType != GTRecipeTypes.DUMMY_RECIPES){
+            var translationKey = recipeType.registryName.toLanguageKey();
+            this.tooltips(cnRegistrate.genLang(
+                    "ctnh.recipe_type.info",
+                    "Recipe Type: %s",
+                    "配方类型：%s",
+                    Component.translatable(translationKey)
+            ));
+        }
+
+        return (CTNHMultiblockMachineBuilder)super.recipeType(recipeType);
     }
 
     public CTNHMultiblockMachineBuilder tier(int tier) {
@@ -392,8 +396,13 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
 
     @Override
     public MultiblockMachineDefinition register() {
-        this.tooltips(Component.literal("————————————————————————"),
-                Component.translatable(under_component));
-        return super.register();
+        var definition = super.register();
+        definition.setTooltipBuilder(definition.getTooltipBuilder().andThen(
+                (is, c) -> {
+                    c.add(Component.literal("————————————————————————"));
+                    c.add(Component.translatable(under_component));
+                }
+        ));
+        return definition;
     }
 }
