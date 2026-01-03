@@ -6,7 +6,8 @@
   "refmap": "ctnhlib.refmap.json",
   "mixins": [
     "GTJadePluginMixin",
-    "MachineBuilderMixin"
+    "MachineBuilderMixin",
+    "TMRVMixin"
   ],
   "client": [
   ],

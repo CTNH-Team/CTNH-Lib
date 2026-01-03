@@ -152,6 +152,7 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
             }
         }
 
+
         // 使用正确的翻译键和参数
         this.tooltips(Component.translatable("ctnh.recipe_type.info", typeNameComponent));
         return (CTNHMultiblockMachineBuilder) super.recipeTypes(recipeTypes);
@@ -160,12 +161,7 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
     public CTNHMultiblockMachineBuilder recipeType(GTRecipeType recipeType) {
         if(recipeType != GTRecipeTypes.DUMMY_RECIPES){
             var translationKey = recipeType.registryName.toLanguageKey();
-            this.tooltips(cnRegistrate.genLang(
-                    "ctnh.recipe_type.info",
-                    "Recipe Type: %s",
-                    "配方类型：%s",
-                    Component.translatable(translationKey)
-            ));
+            this.tooltips(Component.translatable("ctnh.recipe_type.info", translationKey));
         }
 
         return (CTNHMultiblockMachineBuilder)super.recipeType(recipeType);
