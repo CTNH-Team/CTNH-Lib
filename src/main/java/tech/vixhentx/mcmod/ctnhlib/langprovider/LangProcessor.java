@@ -108,10 +108,9 @@ LangProcessor {
         // 数据生成回调
         Arrays.stream(langs).filter(Objects::nonNull).forEach(genDataMethod);
 
-        // 运行时注入（非datagen环境）
-        if (true || !isDataGen) {
-            injectFieldValue(field, langs);
-        }
+        // 运行时注入
+        injectFieldValue(field, langs);
+
     }
 
     private TranslatedLang[] extractTranslations(ModFileScanData.AnnotationData enData,

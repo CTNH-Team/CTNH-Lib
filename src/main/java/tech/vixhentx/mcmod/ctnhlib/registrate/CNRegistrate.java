@@ -147,6 +147,10 @@ public class CNRegistrate extends GTRegistrate {
         return new CTNHMaterial.Builder(this, resourceLocation);
     }
 
+    public CTNHMaterial.Builder material(String path){
+        return material(ResourceLocation.tryBuild(getModid(), path));
+    }
+
     public CTNHRecipeType recipeType(String name, String group, RecipeType<?>... proxyRecipes){
         return recipeType(GTCEu.id(name), group, proxyRecipes);
     }

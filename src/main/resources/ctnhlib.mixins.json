@@ -6,6 +6,7 @@
   "refmap": "ctnhlib.refmap.json",
   "mixins": [
     "GTJadePluginMixin",
+    "GTRecipesMixin",
     "MachineBuilderMixin",
     "TMRVMixin"
   ],

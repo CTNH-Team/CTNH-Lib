@@ -22,7 +22,7 @@ import static tech.vixhentx.mcmod.ctnhlib.CTNHLib.MODID;
 public class DataFilterPack implements PackResources {
 
     final String name;
-    public static final Set<RawRL> FILTERED_RECIPES = new HashSet<>();
+    public static final Set<RawRL> FILTERED = new HashSet<>();
 
     public DataFilterPack(String name){
         this.name = name;
@@ -44,19 +44,23 @@ public class DataFilterPack implements PackResources {
     }
 
     public static void removeRecipe(String s){
-        FILTERED_RECIPES.add(RawRL.of(s));
+        FILTERED.add(RawRL.of(s));
     }
 
     public static void removeRecipe(String nameSpace, String path){
-        FILTERED_RECIPES.add(RawRL.of(nameSpace, path));
+        FILTERED.add(RawRL.of(nameSpace, path));
     }
 
     public static void removeRecipeType(String s){
-        FILTERED_RECIPES.add(RawRL.ofType(s));
+        FILTERED.add(RawRL.ofType(s));
     }
 
     public static void removeRecipeType(String nameSpace, String path){
-        FILTERED_RECIPES.add(RawRL.ofType(nameSpace, path));
+        FILTERED.add(RawRL.ofType(nameSpace, path));
+    }
+
+    public static void removeData(String nameSpace, String path){
+        FILTERED.add(RawRL.ofRaw(nameSpace, path));
     }
 
     @Override
@@ -73,7 +77,7 @@ public class DataFilterPack implements PackResources {
             JsonObject filter = new JsonObject();
             JsonArray block = new JsonArray();
 
-            for(var rl:FILTERED_RECIPES){
+            for(var rl: FILTERED){
                 JsonObject entry = new JsonObject();
                 entry.addProperty("namespace", rl.nameSpace);
                 entry.addProperty("path", rl.path);
@@ -138,6 +142,9 @@ public class DataFilterPack implements PackResources {
             );
         }
 
+        public static RawRL ofRaw(String nameSpace, String path){
+            return new RawRL(validateNamespace(nameSpace), path);
+        }
         /* ==================== validation helpers ==================== */
 
         private static String[] splitAndValidate(String s) {
