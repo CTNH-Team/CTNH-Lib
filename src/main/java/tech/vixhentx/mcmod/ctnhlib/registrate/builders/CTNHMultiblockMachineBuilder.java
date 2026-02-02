@@ -159,12 +159,10 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
     }
 
     public CTNHMultiblockMachineBuilder recipeType(GTRecipeType recipeType) {
-        if(recipeType != GTRecipeTypes.DUMMY_RECIPES){
-            var translationKey = recipeType.registryName.toLanguageKey();
-            this.tooltips(Component.translatable("ctnh.recipe_type.info", translationKey));
+        if(recipeType == GTRecipeTypes.DUMMY_RECIPES){
+            return (CTNHMultiblockMachineBuilder)super.recipeType(recipeType);
         }
-
-        return (CTNHMultiblockMachineBuilder)super.recipeType(recipeType);
+        return recipeTypes(recipeType);
     }
 
     public CTNHMultiblockMachineBuilder tier(int tier) {

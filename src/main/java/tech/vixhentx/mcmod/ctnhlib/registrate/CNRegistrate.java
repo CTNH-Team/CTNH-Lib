@@ -15,6 +15,7 @@ import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeSerializer;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTBlockBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
@@ -162,6 +163,12 @@ public class CNRegistrate extends GTRegistrate {
         GTRegistries.RECIPE_TYPES.register(recipeType.registryName, recipeType);
         return recipeType;
     }
+
+    public CTNHRecipeType recipeType(ResourceLocation resourceLocation, String group, Function<GTRecipeType, GTRecipeTypeUI> uiFactory, RecipeType<?>... proxyRecipes){
+        var type = recipeType(resourceLocation, group, proxyRecipes);
+        return (CTNHRecipeType) type.setRecipeUI(uiFactory.apply(type));
+    }
+
     public CTNHTagPrefix oreTagPrefix(String name, TagKey<Block> miningToolTag) {
         return (CTNHTagPrefix) new CTNHTagPrefix(this, name)
                 .defaultTagPath("ores/%s")
