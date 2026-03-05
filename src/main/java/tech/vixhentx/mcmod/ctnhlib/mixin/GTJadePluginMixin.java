@@ -6,15 +6,16 @@ import com.gregtechceu.gtceu.integration.jade.GTJadePlugin;
 import com.gregtechceu.gtceu.integration.jade.provider.FluidPipeStorageProvider;
 import com.gregtechceu.gtceu.integration.jade.provider.GTFluidStorageProvider;
 import com.gregtechceu.gtceu.integration.jade.provider.GTItemStorageProvider;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
-
 import tech.vixhentx.mcmod.ctnhlib.jade.JadePriorityManager;
 
 @Mixin(value = GTJadePlugin.class, remap = false)
 public class GTJadePluginMixin {
+
     /**
      * @author luckyblock
      * @reason add priority

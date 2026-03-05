@@ -18,18 +18,9 @@ import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
-import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
-import com.tterrag.registrate.builders.BlockBuilder;
-import com.tterrag.registrate.builders.ItemBuilder;
-import com.tterrag.registrate.util.nullness.NonNullConsumer;
-import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import lombok.Generated;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -44,6 +35,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import com.tterrag.registrate.builders.BlockBuilder;
+import com.tterrag.registrate.builders.ItemBuilder;
+import com.tterrag.registrate.util.nullness.NonNullConsumer;
+import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import lombok.Generated;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.Lang;
@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.function.*;
 
 @Accessors(chain = true, fluent = true)
-public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder implements ICNBuilder{
+public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder implements ICNBuilder {
 
     @Setter
     @Nullable
@@ -101,36 +101,37 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
     }
 
     public CTNHMultiblockMachineBuilder machine(Function<IMachineBlockEntity, MetaMachine> machine) {
-        return (CTNHMultiblockMachineBuilder)super.machine(machine);
+        return (CTNHMultiblockMachineBuilder) super.machine(machine);
     }
 
     public CTNHMultiblockMachineBuilder shape(VoxelShape shape) {
-        return (CTNHMultiblockMachineBuilder)super.shape(shape);
+        return (CTNHMultiblockMachineBuilder) super.shape(shape);
     }
 
-    public CTNHMultiblockMachineBuilder multiblockPreviewRenderer(boolean multiBlockWorldPreview, boolean multiBlockXEIPreview) {
-        return (CTNHMultiblockMachineBuilder)super.multiblockPreviewRenderer(multiBlockWorldPreview, multiBlockXEIPreview);
+    public CTNHMultiblockMachineBuilder multiblockPreviewRenderer(boolean multiBlockWorldPreview,
+                                                                  boolean multiBlockXEIPreview) {
+        return (CTNHMultiblockMachineBuilder) super.multiblockPreviewRenderer(multiBlockWorldPreview,
+                multiBlockXEIPreview);
     }
 
     public CTNHMultiblockMachineBuilder rotationState(RotationState rotationState) {
-        return (CTNHMultiblockMachineBuilder)super.rotationState(rotationState);
+        return (CTNHMultiblockMachineBuilder) super.rotationState(rotationState);
     }
 
-
     public CTNHMultiblockMachineBuilder blockProp(NonNullUnaryOperator<BlockBehaviour.Properties> blockProp) {
-        return (CTNHMultiblockMachineBuilder)super.blockProp(blockProp);
+        return (CTNHMultiblockMachineBuilder) super.blockProp(blockProp);
     }
 
     public CTNHMultiblockMachineBuilder itemProp(NonNullUnaryOperator<Item.Properties> itemProp) {
-        return (CTNHMultiblockMachineBuilder)super.itemProp(itemProp);
+        return (CTNHMultiblockMachineBuilder) super.itemProp(itemProp);
     }
 
     public CTNHMultiblockMachineBuilder blockBuilder(Consumer<BlockBuilder<? extends Block, ?>> blockBuilder) {
-        return (CTNHMultiblockMachineBuilder)super.blockBuilder(blockBuilder);
+        return (CTNHMultiblockMachineBuilder) super.blockBuilder(blockBuilder);
     }
 
     public CTNHMultiblockMachineBuilder itemBuilder(Consumer<ItemBuilder<? extends MetaMachineItem, ?>> itemBuilder) {
-        return (CTNHMultiblockMachineBuilder)super.itemBuilder(itemBuilder);
+        return (CTNHMultiblockMachineBuilder) super.itemBuilder(itemBuilder);
     }
 
     public CTNHMultiblockMachineBuilder recipeTypes(GTRecipeType... recipeTypes) {
@@ -152,121 +153,126 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
             }
         }
 
-
         // 使用正确的翻译键和参数
         this.tooltips(Component.translatable("ctnh.recipe_type.info", typeNameComponent));
         return (CTNHMultiblockMachineBuilder) super.recipeTypes(recipeTypes);
     }
 
     public CTNHMultiblockMachineBuilder recipeType(GTRecipeType recipeType) {
-        if(recipeType == GTRecipeTypes.DUMMY_RECIPES){
-            return (CTNHMultiblockMachineBuilder)super.recipeType(recipeType);
+        if (recipeType == GTRecipeTypes.DUMMY_RECIPES) {
+            return (CTNHMultiblockMachineBuilder) super.recipeType(recipeType);
         }
         return recipeTypes(recipeType);
     }
 
     public CTNHMultiblockMachineBuilder tier(int tier) {
-        return (CTNHMultiblockMachineBuilder)super.tier(tier);
+        return (CTNHMultiblockMachineBuilder) super.tier(tier);
     }
 
     public CTNHMultiblockMachineBuilder recipeOutputLimits(Reference2IntMap<RecipeCapability<?>> map) {
-        return (CTNHMultiblockMachineBuilder)super.recipeOutputLimits(map);
+        return (CTNHMultiblockMachineBuilder) super.recipeOutputLimits(map);
     }
 
     public CTNHMultiblockMachineBuilder addOutputLimit(RecipeCapability<?> capability, int limit) {
-        return (CTNHMultiblockMachineBuilder)super.addOutputLimit(capability, limit);
+        return (CTNHMultiblockMachineBuilder) super.addOutputLimit(capability, limit);
     }
 
     public CTNHMultiblockMachineBuilder itemColor(BiFunction<ItemStack, Integer, Integer> itemColor) {
-        return (CTNHMultiblockMachineBuilder)super.itemColor(itemColor);
+        return (CTNHMultiblockMachineBuilder) super.itemColor(itemColor);
     }
 
     public CTNHMultiblockMachineBuilder simpleModel(ResourceLocation model) {
-        return (CTNHMultiblockMachineBuilder)super.simpleModel(model);
+        return (CTNHMultiblockMachineBuilder) super.simpleModel(model);
     }
 
     public CTNHMultiblockMachineBuilder defaultModel() {
-        return (CTNHMultiblockMachineBuilder)super.defaultModel();
+        return (CTNHMultiblockMachineBuilder) super.defaultModel();
     }
 
     public CTNHMultiblockMachineBuilder tieredHullModel(ResourceLocation model) {
-        return (CTNHMultiblockMachineBuilder)super.tieredHullModel(model);
+        return (CTNHMultiblockMachineBuilder) super.tieredHullModel(model);
     }
 
     public CTNHMultiblockMachineBuilder overlayTieredHullModel(String name) {
-        return (CTNHMultiblockMachineBuilder)super.overlayTieredHullModel(name);
+        return (CTNHMultiblockMachineBuilder) super.overlayTieredHullModel(name);
     }
 
     public CTNHMultiblockMachineBuilder overlayTieredHullModel(ResourceLocation overlayModel) {
-        return (CTNHMultiblockMachineBuilder)super.overlayTieredHullModel(overlayModel);
+        return (CTNHMultiblockMachineBuilder) super.overlayTieredHullModel(overlayModel);
     }
 
     public CTNHMultiblockMachineBuilder colorOverlayTieredHullModel(String overlay) {
-        return (CTNHMultiblockMachineBuilder)super.colorOverlayTieredHullModel(overlay);
+        return (CTNHMultiblockMachineBuilder) super.colorOverlayTieredHullModel(overlay);
     }
 
-    public CTNHMultiblockMachineBuilder colorOverlayTieredHullModel(String overlay, @Nullable String pipeOverlay, @Nullable String emissiveOverlay) {
-        return (CTNHMultiblockMachineBuilder)super.colorOverlayTieredHullModel(overlay, pipeOverlay, emissiveOverlay);
+    public CTNHMultiblockMachineBuilder colorOverlayTieredHullModel(String overlay, @Nullable String pipeOverlay,
+                                                                    @Nullable String emissiveOverlay) {
+        return (CTNHMultiblockMachineBuilder) super.colorOverlayTieredHullModel(overlay, pipeOverlay, emissiveOverlay);
     }
 
     public CTNHMultiblockMachineBuilder colorOverlayTieredHullModel(ResourceLocation overlay) {
-        return (CTNHMultiblockMachineBuilder)super.colorOverlayTieredHullModel(overlay);
+        return (CTNHMultiblockMachineBuilder) super.colorOverlayTieredHullModel(overlay);
     }
 
-    public CTNHMultiblockMachineBuilder colorOverlayTieredHullModel(ResourceLocation overlay, @Nullable ResourceLocation pipeOverlay, @Nullable ResourceLocation emissiveOverlay) {
-        return (CTNHMultiblockMachineBuilder)super.colorOverlayTieredHullModel(overlay, pipeOverlay, emissiveOverlay);
+    public CTNHMultiblockMachineBuilder colorOverlayTieredHullModel(ResourceLocation overlay,
+                                                                    @Nullable ResourceLocation pipeOverlay,
+                                                                    @Nullable ResourceLocation emissiveOverlay) {
+        return (CTNHMultiblockMachineBuilder) super.colorOverlayTieredHullModel(overlay, pipeOverlay, emissiveOverlay);
     }
 
     public CTNHMultiblockMachineBuilder workableTieredHullModel(ResourceLocation workableModel) {
-        return (CTNHMultiblockMachineBuilder)super.workableTieredHullModel(workableModel);
+        return (CTNHMultiblockMachineBuilder) super.workableTieredHullModel(workableModel);
     }
 
     public CTNHMultiblockMachineBuilder simpleGeneratorModel(ResourceLocation workableModel) {
-        return (CTNHMultiblockMachineBuilder)super.simpleGeneratorModel(workableModel);
+        return (CTNHMultiblockMachineBuilder) super.simpleGeneratorModel(workableModel);
     }
 
-    public CTNHMultiblockMachineBuilder workableCasingModel(ResourceLocation baseCasing, ResourceLocation overlayModel) {
-        return (CTNHMultiblockMachineBuilder)super.workableCasingModel(baseCasing, overlayModel);
+    public CTNHMultiblockMachineBuilder workableCasingModel(ResourceLocation baseCasing,
+                                                            ResourceLocation overlayModel) {
+        return (CTNHMultiblockMachineBuilder) super.workableCasingModel(baseCasing, overlayModel);
     }
 
-    public CTNHMultiblockMachineBuilder sidedOverlayCasingModel(ResourceLocation baseCasing, ResourceLocation workableModel) {
-        return (CTNHMultiblockMachineBuilder)super.sidedOverlayCasingModel(baseCasing, workableModel);
+    public CTNHMultiblockMachineBuilder sidedOverlayCasingModel(ResourceLocation baseCasing,
+                                                                ResourceLocation workableModel) {
+        return (CTNHMultiblockMachineBuilder) super.sidedOverlayCasingModel(baseCasing, workableModel);
     }
 
-    public CTNHMultiblockMachineBuilder sidedWorkableCasingModel(ResourceLocation baseCasing, ResourceLocation workableModel) {
-        return (CTNHMultiblockMachineBuilder)super.sidedWorkableCasingModel(baseCasing, workableModel);
+    public CTNHMultiblockMachineBuilder sidedWorkableCasingModel(ResourceLocation baseCasing,
+                                                                 ResourceLocation workableModel) {
+        return (CTNHMultiblockMachineBuilder) super.sidedWorkableCasingModel(baseCasing, workableModel);
     }
 
     public CTNHMultiblockMachineBuilder tooltipBuilder(BiConsumer<ItemStack, List<Component>> tooltipBuilder) {
-        return (CTNHMultiblockMachineBuilder)super.tooltipBuilder(tooltipBuilder);
+        return (CTNHMultiblockMachineBuilder) super.tooltipBuilder(tooltipBuilder);
     }
 
     public CTNHMultiblockMachineBuilder appearance(Supplier<BlockState> state) {
-        return (CTNHMultiblockMachineBuilder)super.appearance(state);
+        return (CTNHMultiblockMachineBuilder) super.appearance(state);
     }
 
     public CTNHMultiblockMachineBuilder appearanceBlock(Supplier<? extends Block> block) {
-        return (CTNHMultiblockMachineBuilder)super.appearanceBlock(block);
+        return (CTNHMultiblockMachineBuilder) super.appearanceBlock(block);
     }
 
     public CTNHMultiblockMachineBuilder langValue(String langValue) {
-        return (CTNHMultiblockMachineBuilder)super.langValue(langValue);
+        return (CTNHMultiblockMachineBuilder) super.langValue(langValue);
     }
 
     public CTNHMultiblockMachineBuilder tooltips(Component... components) {
-        return (CTNHMultiblockMachineBuilder)super.tooltips(components);
+        return (CTNHMultiblockMachineBuilder) super.tooltips(components);
     }
 
     public CTNHMultiblockMachineBuilder tooltips(Lang[] tooltip) {
         List<Component> tooltips = new ArrayList<>();
-        for(var t: tooltip){
+        for (var t : tooltip) {
             tooltips.add(t.translate());
         }
-        return (CTNHMultiblockMachineBuilder)super.tooltips(tooltips);
+        return (CTNHMultiblockMachineBuilder) super.tooltips(tooltips);
     }
 
     public CTNHMultiblockMachineBuilder conditionalTooltip(Component component, Supplier<Boolean> condition) {
-        return (CTNHMultiblockMachineBuilder) super.conditionalTooltip(component, (Boolean)condition.get());
+        return (CTNHMultiblockMachineBuilder) super.conditionalTooltip(component, (Boolean) condition.get());
     }
 
     public CTNHMultiblockMachineBuilder conditionalTooltip(Component component, boolean condition) {
@@ -278,64 +284,66 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
     }
 
     public CTNHMultiblockMachineBuilder abilities(PartAbility... abilities) {
-        return (CTNHMultiblockMachineBuilder)super.abilities(abilities);
+        return (CTNHMultiblockMachineBuilder) super.abilities(abilities);
     }
 
     public CTNHMultiblockMachineBuilder paintingColor(int paintingColor) {
-        return (CTNHMultiblockMachineBuilder)super.paintingColor(paintingColor);
+        return (CTNHMultiblockMachineBuilder) super.paintingColor(paintingColor);
     }
 
     public CTNHMultiblockMachineBuilder recipeModifier(RecipeModifier recipeModifier) {
-        return (CTNHMultiblockMachineBuilder)super.recipeModifier(recipeModifier);
+        return (CTNHMultiblockMachineBuilder) super.recipeModifier(recipeModifier);
     }
 
     public CTNHMultiblockMachineBuilder recipeModifier(RecipeModifier recipeModifier, boolean alwaysTryModifyRecipe) {
-        return (CTNHMultiblockMachineBuilder)super.recipeModifier(recipeModifier, alwaysTryModifyRecipe);
+        return (CTNHMultiblockMachineBuilder) super.recipeModifier(recipeModifier, alwaysTryModifyRecipe);
     }
 
     public CTNHMultiblockMachineBuilder recipeModifiers(RecipeModifier... recipeModifiers) {
-        return (CTNHMultiblockMachineBuilder)super.recipeModifiers(recipeModifiers);
+        return (CTNHMultiblockMachineBuilder) super.recipeModifiers(recipeModifiers);
     }
 
-    public CTNHMultiblockMachineBuilder recipeModifiers(boolean alwaysTryModifyRecipe, RecipeModifier... recipeModifiers) {
-        return (CTNHMultiblockMachineBuilder)super.recipeModifiers(alwaysTryModifyRecipe, recipeModifiers);
+    public CTNHMultiblockMachineBuilder recipeModifiers(boolean alwaysTryModifyRecipe,
+                                                        RecipeModifier... recipeModifiers) {
+        return (CTNHMultiblockMachineBuilder) super.recipeModifiers(alwaysTryModifyRecipe, recipeModifiers);
     }
 
     public CTNHMultiblockMachineBuilder noRecipeModifier() {
-        return (CTNHMultiblockMachineBuilder)super.noRecipeModifier();
+        return (CTNHMultiblockMachineBuilder) super.noRecipeModifier();
     }
 
     public CTNHMultiblockMachineBuilder alwaysTryModifyRecipe(boolean alwaysTryModifyRecipe) {
-        return (CTNHMultiblockMachineBuilder)super.alwaysTryModifyRecipe(alwaysTryModifyRecipe);
+        return (CTNHMultiblockMachineBuilder) super.alwaysTryModifyRecipe(alwaysTryModifyRecipe);
     }
 
     public CTNHMultiblockMachineBuilder beforeWorking(BiPredicate<IRecipeLogicMachine, GTRecipe> beforeWorking) {
-        return (CTNHMultiblockMachineBuilder)super.beforeWorking(beforeWorking);
+        return (CTNHMultiblockMachineBuilder) super.beforeWorking(beforeWorking);
     }
 
     public CTNHMultiblockMachineBuilder onWorking(Predicate<IRecipeLogicMachine> onWorking) {
-        return (CTNHMultiblockMachineBuilder)super.onWorking(onWorking);
+        return (CTNHMultiblockMachineBuilder) super.onWorking(onWorking);
     }
 
     public CTNHMultiblockMachineBuilder onWaiting(Consumer<IRecipeLogicMachine> onWaiting) {
-        return (CTNHMultiblockMachineBuilder)super.onWaiting(onWaiting);
+        return (CTNHMultiblockMachineBuilder) super.onWaiting(onWaiting);
     }
 
     public CTNHMultiblockMachineBuilder afterWorking(Consumer<IRecipeLogicMachine> afterWorking) {
-        return (CTNHMultiblockMachineBuilder)super.afterWorking(afterWorking);
+        return (CTNHMultiblockMachineBuilder) super.afterWorking(afterWorking);
     }
 
     public CTNHMultiblockMachineBuilder regressWhenWaiting(boolean dampingWhenWaiting) {
-        return (CTNHMultiblockMachineBuilder)super.regressWhenWaiting(dampingWhenWaiting);
+        return (CTNHMultiblockMachineBuilder) super.regressWhenWaiting(dampingWhenWaiting);
     }
 
     public CTNHMultiblockMachineBuilder editableUI(@Nullable EditableMachineUI editableUI) {
-        return (CTNHMultiblockMachineBuilder)super.editableUI(editableUI);
+        return (CTNHMultiblockMachineBuilder) super.editableUI(editableUI);
     }
 
     public CTNHMultiblockMachineBuilder onBlockEntityRegister(NonNullConsumer<BlockEntityType<BlockEntity>> onBlockEntityRegister) {
-        return (CTNHMultiblockMachineBuilder)super.onBlockEntityRegister(onBlockEntityRegister);
+        return (CTNHMultiblockMachineBuilder) super.onBlockEntityRegister(onBlockEntityRegister);
     }
+
     @Generated
     public CTNHMultiblockMachineBuilder generator(boolean generator) {
         super.generator(generator);
@@ -353,9 +361,10 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
         super.allowExtendedFacing(allowExtendedFacing);
         return this;
     }
+
     @Generated
     public CTNHMultiblockMachineBuilder addUnderTooltip(String tooltip) {
-        this.under_component=tooltip;
+        this.under_component = tooltip;
         return this;
     }
 
@@ -395,8 +404,7 @@ public class CTNHMultiblockMachineBuilder extends MultiblockMachineBuilder imple
                 (is, c) -> {
                     c.add(Component.literal("————————————————————————"));
                     c.add(Component.translatable(under_component));
-                }
-        ));
+                }));
         return definition;
     }
 }

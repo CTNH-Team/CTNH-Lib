@@ -2,6 +2,7 @@ package tech.vixhentx.mcmod.ctnhlib.jade;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import snownee.jade.api.*;
 
 import java.util.ArrayList;
@@ -64,7 +65,8 @@ public final class JadePriorityManager {
 
     public record JadeBlockDataRegistration(IServerDataProvider<BlockAccessor> provider,
                                             Class<? extends BlockEntity> target, int priority,
-                                            String id) implements Comparable<JadeBlockDataRegistration> {
+                                            String id)
+            implements Comparable<JadeBlockDataRegistration> {
 
         @Override
         public int compareTo(JadeBlockDataRegistration o) {
@@ -77,8 +79,9 @@ public final class JadePriorityManager {
     }
 
     public record JadeBlockComponentRegistration(IBlockComponentProvider provider, Class<? extends Block> target,
-                                          int priority,
-                                          String id) implements Comparable<JadeBlockComponentRegistration> {
+                                                 int priority,
+                                                 String id)
+            implements Comparable<JadeBlockComponentRegistration> {
 
         @Override
         public int compareTo(JadeBlockComponentRegistration o) {
@@ -89,6 +92,4 @@ public final class JadePriorityManager {
             registration.registerBlockComponent(provider, target);
         }
     }
-
-
 }

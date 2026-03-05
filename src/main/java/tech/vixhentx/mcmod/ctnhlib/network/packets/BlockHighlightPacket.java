@@ -2,8 +2,10 @@ package tech.vixhentx.mcmod.ctnhlib.network.packets;
 
 import com.lowdragmc.lowdraglib.networking.IHandlerContext;
 import com.lowdragmc.lowdraglib.networking.PacketIntLocation;
-import lombok.NoArgsConstructor;
+
 import net.minecraft.core.BlockPos;
+
+import lombok.NoArgsConstructor;
 import tech.vixhentx.mcmod.ctnhlib.client.render.ColorData;
 import tech.vixhentx.mcmod.ctnhlib.client.render.highlight.HighlightHandler;
 

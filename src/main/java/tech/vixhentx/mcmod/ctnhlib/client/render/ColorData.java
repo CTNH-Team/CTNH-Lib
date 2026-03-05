@@ -1,7 +1,8 @@
 package tech.vixhentx.mcmod.ctnhlib.client.render;
 
 public class ColorData {
-    public static ColorData RED = new ColorData(1f,1f, 0f, 0f);
+
+    public static ColorData RED = new ColorData(1f, 1f, 0f, 0f);
     float a;
     float r;
     float g;

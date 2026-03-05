@@ -1,10 +1,5 @@
 package tech.vixhentx.mcmod.ctnhlib.client.render.highlight;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,11 +7,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import tech.vixhentx.mcmod.ctnhlib.client.render.ColorData;
 
 import java.util.OptionalDouble;
 
 public class HighlightRender extends RenderType {
+
     public static final HighlightRender INSTANCE = new HighlightRender();
     private final LineStateShard LINE_3 = new LineStateShard(OptionalDouble.of(3.0));
     private final RenderType BLOCK_HIGHLIGHT_LINE = create("block_highlight_line",
@@ -30,12 +32,12 @@ public class HighlightRender extends RenderType {
                     .setLightmapState(NO_LIGHTMAP)
                     .setWriteMaskState(COLOR_DEPTH_WRITE)
                     .setShaderState(RENDERTYPE_LINES_SHADER)
-                    .createCompositeState(false)
-    );
+                    .createCompositeState(false));
 
     public static void hook(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            HighlightRender.INSTANCE.tick(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(), event.getCamera());
+            HighlightRender.INSTANCE.tick(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(),
+                    event.getCamera());
         }
     }
 
@@ -73,7 +75,8 @@ public class HighlightRender extends RenderType {
         }
     }
 
-    private void drawBlockOutline(AABB box, ColorData color, PoseStack stack, Camera camera, MultiBufferSource multiBuf) {
+    private void drawBlockOutline(AABB box, ColorData color, PoseStack stack, Camera camera,
+                                  MultiBufferSource multiBuf) {
         var r = color.getRf();
         var g = color.getGf();
         var b = color.getBf();
@@ -99,21 +102,26 @@ public class HighlightRender extends RenderType {
         }
     }
 
-    private void renderBox(VertexConsumer buf, PoseStack stack, Vec3 topLeft, Vec3 bottomLeft, Vec3 topRight, Vec3 bottomRight, float r, float g, float b, float a) {
+    private void renderBox(VertexConsumer buf, PoseStack stack, Vec3 topLeft, Vec3 bottomLeft, Vec3 topRight,
+                           Vec3 bottomRight, float r, float g, float b, float a) {
         renderLine(buf, stack, topLeft, bottomLeft, r, g, b, a);
         renderLine(buf, stack, topLeft, topRight, r, g, b, a);
         renderLine(buf, stack, bottomRight, bottomLeft, r, g, b, a);
         renderLine(buf, stack, bottomRight, topRight, r, g, b, a);
     }
 
-    private void renderLine(VertexConsumer buf, PoseStack pose, Vec3 from, Vec3 to, float r, float g, float b, float a) {
+    private void renderLine(VertexConsumer buf, PoseStack pose, Vec3 from, Vec3 to, float r, float g, float b,
+                            float a) {
         var mat = pose.last().pose();
         var normal = from.subtract(to);
-        buf.vertex(mat, (float) from.x, (float) from.y, (float) from.z).color(r, g, b, a).normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
-        buf.vertex(mat, (float) to.x, (float) to.y, (float) to.z).color(r, g, b, a).normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        buf.vertex(mat, (float) from.x, (float) from.y, (float) from.z).color(r, g, b, a)
+                .normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        buf.vertex(mat, (float) to.x, (float) to.y, (float) to.z).color(r, g, b, a)
+                .normal((float) normal.x, (float) normal.y, (float) normal.z).endVertex();
     }
 
     private HighlightRender() {
-        super("", DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 0, false, false, () -> {}, () -> {});
+        super("", DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 0, false, false, () -> {},
+                () -> {});
     }
 }

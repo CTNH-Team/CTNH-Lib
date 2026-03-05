@@ -229,7 +229,7 @@ public class RightConfiguratorPanel extends WidgetGroup {
                                 .setType(TextTexture.TextType.LEFT_HIDE)
                                 .setWidth(widget.getSize().width - getTabSize())));
                 this.addWidget(button);
-                //this.addWidget(view);
+                // this.addWidget(view);
             }
         }
 

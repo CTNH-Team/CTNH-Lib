@@ -1,15 +1,16 @@
 package tech.vixhentx.mcmod.ctnhlib.client.render.highlight;
 
-import it.unimi.dsi.fastutil.Hash;
-import it.unimi.dsi.fastutil.PriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
-import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+
+import it.unimi.dsi.fastutil.Hash;
+import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import tech.vixhentx.mcmod.ctnhlib.client.render.ColorData;
 
 import java.util.Collection;
@@ -18,9 +19,12 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 public class HighlightHandler {
-    private static final PriorityQueue<HighlightData> BLOCK_QUEUE = new ObjectHeapPriorityQueue<>(Comparator.comparingLong(o -> o.time));
+
+    private static final PriorityQueue<HighlightData> BLOCK_QUEUE = new ObjectHeapPriorityQueue<>(
+            Comparator.comparingLong(o -> o.time));
     private static final ObjectSet<HighlightData> BLOCKS = new ObjectOpenCustomHashSet<>(
             new Hash.Strategy<>() {
+
                 @Override
                 public int hashCode(HighlightData o) {
                     return o.dim.hashCode() ^ o.pos.hashCode();
@@ -28,7 +32,8 @@ public class HighlightHandler {
 
                 @Override
                 public boolean equals(HighlightData a, HighlightData b) {
-                    return (a == b) || (a != null && b != null && Objects.equals(a.dim, b.dim) && Objects.equals(a.pos, b.pos) && dirCheck(a.face, b.face));
+                    return (a == b) || (a != null && b != null && Objects.equals(a.dim, b.dim) &&
+                            Objects.equals(a.pos, b.pos) && dirCheck(a.face, b.face));
                 }
 
                 private static boolean dirCheck(Direction a, Direction b) {
@@ -37,22 +42,24 @@ public class HighlightHandler {
                     }
                     return a == b;
                 }
-            }
-    );
+            });
 
     public static void highlight(BlockPos pos, ResourceKey<Level> dim, long time, ColorData color) {
         highlight(pos, null, dim, time, new AABB(pos), color);
     }
 
-    public static void highlight(BlockPos pos, ResourceKey<Level> dim, long time, ColorData color, Supplier<Boolean> checker) {
+    public static void highlight(BlockPos pos, ResourceKey<Level> dim, long time, ColorData color,
+                                 Supplier<Boolean> checker) {
         highlight(pos, null, dim, time, new AABB(pos), color, checker);
     }
 
-    public static void highlight(BlockPos pos, Direction face, ResourceKey<Level> dim, long time, AABB box, ColorData color) {
+    public static void highlight(BlockPos pos, Direction face, ResourceKey<Level> dim, long time, AABB box,
+                                 ColorData color) {
         highlight(pos, face, dim, time, box, color, null);
     }
 
-    public static void highlight(BlockPos pos, Direction face, ResourceKey<Level> dim, long time, AABB box, ColorData color, Supplier<Boolean> checker) {
+    public static void highlight(BlockPos pos, Direction face, ResourceKey<Level> dim, long time, AABB box,
+                                 ColorData color, Supplier<Boolean> checker) {
         var r = new HighlightData(pos, face, time, dim, box, color, checker);
         if (!BLOCKS.contains(r)) {
             BLOCK_QUEUE.enqueue(r);
@@ -79,7 +86,8 @@ public class HighlightHandler {
         return BLOCKS;
     }
 
-    public record HighlightData(BlockPos pos, Direction face, long time, ResourceKey<Level> dim, AABB box, ColorData color, Supplier<Boolean> checker) {
+    public record HighlightData(BlockPos pos, Direction face, long time, ResourceKey<Level> dim, AABB box,
+                                ColorData color, Supplier<Boolean> checker) {
 
         public boolean checkDim(ResourceKey<Level> dim) {
             if (dim == null || this.dim == null) {
@@ -94,6 +102,5 @@ public class HighlightHandler {
             }
             return true;
         }
-
     }
 }

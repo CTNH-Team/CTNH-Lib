@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 /// Must annotate on Lang type or its array field
 public @interface Key {
+
     String value();
 }

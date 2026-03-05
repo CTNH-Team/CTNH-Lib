@@ -1,11 +1,6 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public final class TranslatedLang extends Lang{
+public final class TranslatedLang extends Lang {
 
     public final String en_translation, cn_translation;
 

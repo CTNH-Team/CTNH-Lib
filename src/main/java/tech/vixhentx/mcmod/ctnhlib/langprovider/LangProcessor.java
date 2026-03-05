@@ -6,23 +6,25 @@ import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.forgespi.locating.IModFile;
+
 import org.objectweb.asm.Type;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
 import tech.vixhentx.mcmod.ctnhlib.registrate.CNRegistrate;
 
-import javax.annotation.Nullable;
 import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Consumer;
 
+import javax.annotation.Nullable;
+
 import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
 
 public class
 
-
 LangProcessor {
+
     final String modid;
     private final Consumer<TranslatedLang> genDataMethod;
 
@@ -30,17 +32,19 @@ LangProcessor {
     private static final Type CN_ANNOTATION = Type.getType(CN.class);
 
     private static class AnnotationPair {
+
         ModFileScanData.AnnotationData enData;
         ModFileScanData.AnnotationData cnData;
     }
 
-    public LangProcessor(String modid, Consumer<TranslatedLang> dataGenerator){
+    public LangProcessor(String modid, Consumer<TranslatedLang> dataGenerator) {
         this.modid = modid;
         genDataMethod = isDataGen ? dataGenerator : __ -> {};
     }
-    public LangProcessor(CNRegistrate registrate){
+
+    public LangProcessor(CNRegistrate registrate) {
         this(registrate.getModid(),
-                (lang)->registrate.addRawLang(lang.key, lang.en_translation, lang.cn_translation));
+                (lang) -> registrate.addRawLang(lang.key, lang.en_translation, lang.cn_translation));
     }
 
     public @Nullable ModFileScanData getScanDataForModId(String modId) {
@@ -56,8 +60,7 @@ LangProcessor {
     /** 全局扫描所有 @EN/@CN 字段 */
     public void processAll() {
         ModFileScanData scanData = getScanDataForModId(modid);
-        if(scanData != null)
-        {
+        if (scanData != null) {
             Map<String, AnnotationPair> annotationMap = new HashMap<>();
 
             // 第一阶段：收集所有注解
@@ -85,7 +88,6 @@ LangProcessor {
         }
     }
 
-
     private void processField(ModFileScanData.AnnotationData enData,
                               ModFileScanData.AnnotationData cnData) throws Exception {
         // 确定主注解数据（优先使用EN，其次CN）
@@ -110,7 +112,6 @@ LangProcessor {
 
         // 运行时注入
         injectFieldValue(field, langs);
-
     }
 
     private TranslatedLang[] extractTranslations(ModFileScanData.AnnotationData enData,
@@ -133,7 +134,7 @@ LangProcessor {
         TranslatedLang lang = LangProcessUtils.getLocatedInfo(enData, cnData, className, fieldName);
 
         lang.key = baseKey;
-        return new TranslatedLang[]{lang};
+        return new TranslatedLang[] { lang };
     }
 
     private void injectFieldValue(Field field, TranslatedLang[] langs) throws IllegalAccessException {
@@ -152,7 +153,6 @@ LangProcessor {
             field.setAccessible(false);
         }
     }
-
 
     /** 构建键名（暂时只处理类级别注解，可扩展递归） */
     private String buildKeyFromAnnotations(Class<?> clazz, Field field, String itemKey) {

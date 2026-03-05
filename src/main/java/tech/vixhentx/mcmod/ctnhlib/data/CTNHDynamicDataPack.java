@@ -1,16 +1,9 @@
 package tech.vixhentx.mcmod.ctnhlib.data;
 
-import com.google.common.collect.Sets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.gregtechceu.gtceu.GTCEu;
-import com.gregtechceu.gtceu.api.addon.AddonFinder;
-import com.gregtechceu.gtceu.api.addon.IGTAddon;
-import com.gregtechceu.gtceu.common.data.GTRecipes;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.data.pack.GTDynamicPackContents;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+
 import net.minecraft.SharedConstants;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.network.chat.Component;
@@ -20,21 +13,22 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.resources.IoSupplier;
+
+import com.google.gson.JsonObject;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static tech.vixhentx.mcmod.ctnhlib.CTNHLib.MODID;
 
@@ -42,14 +36,12 @@ import static tech.vixhentx.mcmod.ctnhlib.CTNHLib.MODID;
 @ParametersAreNonnullByDefault
 public class CTNHDynamicDataPack implements PackResources {
 
-
     protected static final GTDynamicPackContents CONTENTS = new GTDynamicPackContents();
 
     private final String name;
 
     public CTNHDynamicDataPack(String name) {
         this.name = name;
-
     }
 
     public static void clearServer() {
