@@ -135,7 +135,7 @@ public class CNRegistrate extends GTRegistrate {
                                                                                          BiFunction<BlockBehaviour.Properties, DEFINITION, IMachineBlock> blockFactory,
                                                                                          BiFunction<IMachineBlock, Item.Properties, MetaMachineItem> itemFactory,
                                                                                          TriFunction<BlockEntityType<?>, BlockPos, BlockState, IMachineBlockEntity> blockEntityFactory) {
-        return new CTNHMachineBuilder<>(this, name, cnname, definitionFactory, metaMachine,
+        return new CTNHMachineBuilder(this, name, cnname, definitionFactory, metaMachine,
                 blockFactory, itemFactory, blockEntityFactory);
     }
 

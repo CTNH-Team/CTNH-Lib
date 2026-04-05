@@ -24,7 +24,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Accessors(chain = true, fluent = true)
-public class CTNHMachineBuilder<DEFINITION extends MachineDefinition> extends MachineBuilder<DEFINITION>
+public class CTNHMachineBuilder<DEFINITION extends MachineDefinition>
+                               extends MachineBuilder<DEFINITION, CTNHMachineBuilder<DEFINITION>>
                                implements ICNBuilder {
 
     // getter for KJS
