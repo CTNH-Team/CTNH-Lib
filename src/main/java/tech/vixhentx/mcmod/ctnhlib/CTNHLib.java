@@ -19,7 +19,6 @@ public class CTNHLib {
 
     public CTNHLib() {
         final var context = FMLJavaModLoadingContext.get();
-        // noinspection InstantiationOfUtilityClass
         DistExecutor.unsafeRunForDist(() -> () -> new ClientProxy(context), () -> () -> new CommonProxy(context));
     }
 }

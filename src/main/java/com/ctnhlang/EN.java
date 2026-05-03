@@ -1,4 +1,4 @@
-package tech.vixhentx.mcmod.ctnhlib.langprovider.annotation;
+package com.ctnhlang;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

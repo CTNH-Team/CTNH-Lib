@@ -1,5 +1,8 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
+import com.ctnhlang.CN;
+import com.ctnhlang.EN;
+import com.ctnhlang.IgnoreLang;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModFileInfo;
@@ -7,169 +10,166 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.forgespi.locating.IModFile;
 
+import com.ctnhlang.langprovider.LangKeyBuilder;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
-import tech.vixhentx.mcmod.ctnhlib.langprovider.annotation.*;
 import tech.vixhentx.mcmod.ctnhlib.registrate.CNRegistrate;
 
 import java.lang.annotation.ElementType;
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.function.Consumer;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
-
-public class
-
-LangProcessor {
-
-    final String modid;
-    private final Consumer<TranslatedLang> genDataMethod;
+public class LangProcessor {
 
     private static final Type EN_ANNOTATION = Type.getType(EN.class);
     private static final Type CN_ANNOTATION = Type.getType(CN.class);
+    private static final Type IGNORE_ANNOTATION = Type.getType(IgnoreLang.class);
 
-    private static class AnnotationPair {
+    private final String modid;
+    private final CNRegistrate registrate;
+
+    private static final class AnnotationPair {
 
         ModFileScanData.AnnotationData enData;
         ModFileScanData.AnnotationData cnData;
-    }
-
-    public LangProcessor(String modid, Consumer<TranslatedLang> dataGenerator) {
-        this.modid = modid;
-        genDataMethod = isDataGen ? dataGenerator : __ -> {};
+        ModFileScanData.AnnotationData ignoreData;
     }
 
     public LangProcessor(CNRegistrate registrate) {
-        this(registrate.getModid(),
-                (lang) -> registrate.addRawLang(lang.key, lang.en_translation, lang.cn_translation));
+        this.modid = registrate.getModid();
+        this.registrate = registrate;
     }
 
-    public @Nullable ModFileScanData getScanDataForModId(String modId) {
-        return ModList.get()
-                .getModContainerById(modId) // 获取指定modid的ModContainer
-                .map(ModContainer::getModInfo) // 获取ModInfo
-                .map(IModInfo::getOwningFile) // 获取所属的IModFileInfo
-                .map(IModFileInfo::getFile) // 获取IModFile
-                .map(IModFile::getScanResult)
-                .orElse(null); // 获取扫描结果
-    }
-
-    /** 全局扫描所有 @EN/@CN 字段 */
     public void processAll() {
         ModFileScanData scanData = getScanDataForModId(modid);
-        if (scanData != null) {
-            Map<String, AnnotationPair> annotationMap = new HashMap<>();
-
-            // 第一阶段：收集所有注解
-            scanData.getAnnotations().forEach(ann -> {
-                if (ann.targetType() != ElementType.FIELD) return;
-
-                String key = ann.clazz().getClassName() + "#" + ann.memberName();
-                AnnotationPair pair = annotationMap.computeIfAbsent(key, k -> new AnnotationPair());
-
-                if (ann.annotationType().equals(EN_ANNOTATION)) {
-                    pair.enData = ann;
-                } else if (ann.annotationType().equals(CN_ANNOTATION)) {
-                    pair.cnData = ann;
-                }
-            });
-
-            // 第二阶段：处理每个字段
-            annotationMap.forEach((key, pair) -> {
-                try {
-                    processField(pair.enData, pair.cnData);
-                } catch (Exception e) {
-                    CTNHLib.LOGGER.error("Failed to process Lang field {}", key, e);
-                }
-            });
+        if (scanData == null) {
+            return;
         }
+
+        Map<String, AnnotationPair> annotationMap = new HashMap<>();
+        scanData.getAnnotations().forEach(annotation -> {
+            if (annotation.targetType() != ElementType.FIELD) {
+                return;
+            }
+
+            String key = annotation.clazz().getClassName() + "#" + annotation.memberName();
+            AnnotationPair pair = annotationMap.computeIfAbsent(key, ignored -> new AnnotationPair());
+            if (annotation.annotationType().equals(EN_ANNOTATION)) {
+                pair.enData = annotation;
+            } else if (annotation.annotationType().equals(CN_ANNOTATION)) {
+                pair.cnData = annotation;
+            } else if (annotation.annotationType().equals(IGNORE_ANNOTATION)) {
+                pair.ignoreData = annotation;
+            }
+        });
+
+        annotationMap.forEach((key, pair) -> {
+            if (pair.ignoreData != null) {
+                return;
+            }
+            try {
+                processField(pair.enData, pair.cnData);
+            } catch (Exception exception) {
+                CTNHLib.LOGGER.error("Failed to process Lang field {}", key, exception);
+            }
+        });
+    }
+
+    public ModFileScanData getScanDataForModId(String modId) {
+        return ModList.get()
+                .getModContainerById(modId)
+                .map(ModContainer::getModInfo)
+                .map(IModInfo::getOwningFile)
+                .map(IModFileInfo::getFile)
+                .map(IModFile::getScanResult)
+                .orElse(null);
     }
 
     private void processField(ModFileScanData.AnnotationData enData,
                               ModFileScanData.AnnotationData cnData) throws Exception {
-        // 确定主注解数据（优先使用EN，其次CN）
-        ModFileScanData.AnnotationData primaryData = enData != null ? enData : cnData;
-        if (primaryData == null) return; // 理论上不会发生，因为annotationMap只存有注解的字段
-
-        String className = primaryData.clazz().getClassName();
-        String fieldName = primaryData.memberName();
-
-        Class<?> clazz = Class.forName(className);
-        Field field = clazz.getDeclaredField(fieldName);
-
-        String itemKey = LangProcessUtils.getItemKey(field);
-        String builtKey = buildKeyFromAnnotations(clazz, field, itemKey);
-
-        // 处理翻译内容
-        TranslatedLang[] langs = extractTranslations(enData, cnData, className, fieldName, builtKey);
-        if (langs.length == 0) return;
-
-        // 数据生成回调
-        Arrays.stream(langs).filter(Objects::nonNull).forEach(genDataMethod);
-
-        // 运行时注入
-        injectFieldValue(field, langs);
-    }
-
-    private TranslatedLang[] extractTranslations(ModFileScanData.AnnotationData enData,
-                                                 ModFileScanData.AnnotationData cnData,
-                                                 String className,
-                                                 String fieldName,
-                                                 String baseKey) {
-        // 处理数组情况
-        if (enData != null && LangProcessUtils.extractStringArray(enData).length > 1) {
-            TranslatedLang[] langs = LangProcessUtils.getLocatedInfos(enData, cnData, className, fieldName);
-            for (int i = 0; i < langs.length; i++) {
-                if (langs[i] != null) {
-                    langs[i].key = LangProcessUtils.buildKeyWithIndex(baseKey, i);
-                }
-            }
-            return langs;
+        ModFileScanData.AnnotationData primary = enData != null ? enData : cnData;
+        if (primary == null) {
+            return;
         }
 
-        // 处理单值情况
-        TranslatedLang lang = LangProcessUtils.getLocatedInfo(enData, cnData, className, fieldName);
+        ClassNode classNode = readClassNode(primary.clazz().getClassName());
+        if (classNode == null) {
+            throw new IllegalStateException("Unable to read class bytes for " + primary.clazz().getClassName());
+        }
+        FieldNode field = findField(classNode, primary.memberName());
+        if (field == null) {
+            throw new NoSuchFieldException(primary.clazz().getClassName() + "#" + primary.memberName());
+        }
+        String[] enValues = extractStringArray(enData);
+        String[] cnValues = extractStringArray(cnData);
 
-        lang.key = baseKey;
-        return new TranslatedLang[] { lang };
-    }
-
-    private void injectFieldValue(Field field, TranslatedLang[] langs) throws IllegalAccessException {
-        field.setAccessible(true);
-        try {
-            if (field.getType().isArray()) {
-                Lang[] erased = new Lang[langs.length];
-                for (int i = 0; i < langs.length; i++) {
-                    erased[i] = langs[i] != null ? langs[i].erase() : null;
+        if (field.desc.startsWith("[")) {
+            int count = Math.max(enValues.length, cnValues.length);
+            String[] keys = LangKeyBuilder.buildIndexedKeys(classNode, field, count, modid);
+            for (int i = 0; i < count; i++) {
+                String en = i < enValues.length ? enValues[i] : "";
+                String cn = i < cnValues.length ? cnValues[i] : "";
+                if (!en.isEmpty() || !cn.isEmpty()) {
+                    registrate.addRawLang(keys[i], en, cn);
                 }
-                field.set(null, erased);
-            } else {
-                field.set(null, langs[0] != null ? langs[0].erase() : null);
             }
-        } finally {
-            field.setAccessible(false);
+            if (enValues.length != cnValues.length && enValues.length != 0 && cnValues.length != 0) {
+                CTNHLib.LOGGER.warn("Mismatched @EN/@CN array lengths on {}#{}", primary.clazz().getClassName(), field.name);
+            }
+            return;
+        }
+
+        String key = LangKeyBuilder.buildKey(classNode, field, modid);
+        String en = enValues.length > 0 ? enValues[0] : "";
+        String cn = cnValues.length > 0 ? cnValues[0] : "";
+        if (!en.isEmpty() || !cn.isEmpty()) {
+            registrate.addRawLang(key, en, cn);
         }
     }
 
-    /** 构建键名（暂时只处理类级别注解，可扩展递归） */
-    private String buildKeyFromAnnotations(Class<?> clazz, Field field, String itemKey) {
-        LinkedList<String> prefixes = new LinkedList<>();
-        LinkedList<String> suffixes = new LinkedList<>();
+    private ClassNode readClassNode(String className) throws IOException {
+        String resourceName = className.replace('.', '/') + ".class";
+        try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName)) {
+            if (stream == null) {
+                return null;
+            }
+            ClassNode classNode = new ClassNode();
+            new ClassReader(stream).accept(classNode, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+            return classNode;
+        }
+    }
 
-        Domain domainAnn = clazz.getAnnotation(Domain.class);
-        Prefix prefixAnn = clazz.getAnnotation(Prefix.class);
-        Suffix suffixAnn = clazz.getAnnotation(Suffix.class);
+    private FieldNode findField(ClassNode classNode, String fieldName) {
+        for (FieldNode field : classNode.fields) {
+            if (field.name.equals(fieldName)) {
+                return field;
+            }
+        }
+        return null;
+    }
 
-        String domain = (domainAnn != null) ? domainAnn.value() : modid;
-        String root = (domainAnn != null) ? LangProcessUtils.getRoot(domainAnn, "") : "";
-        String category = (domainAnn != null) ? LangProcessUtils.getCategory(domainAnn, clazz.getSimpleName()) : "";
-
-        if (prefixAnn != null) prefixes.add(LangProcessUtils.getPrefix(prefixAnn, clazz::getSimpleName));
-        if (suffixAnn != null) suffixes.add(LangProcessUtils.getSuffix(suffixAnn, clazz::getSimpleName));
-
-        return LangProcessUtils.buildKey(prefixes, suffixes, domain, root, category, itemKey);
+    private String[] extractStringArray(ModFileScanData.AnnotationData data) {
+        if (data == null) {
+            return new String[0];
+        }
+        Object value = data.annotationData().get("value");
+        if (value == null) {
+            return new String[0];
+        }
+        if (value instanceof String stringValue) {
+            return new String[] { stringValue };
+        }
+        if (value instanceof String[] arrayValue) {
+            return arrayValue;
+        }
+        if (value instanceof java.util.List<?> listValue) {
+            return listValue.stream().map(Object::toString).toArray(String[]::new);
+        }
+        return new String[0];
     }
 }

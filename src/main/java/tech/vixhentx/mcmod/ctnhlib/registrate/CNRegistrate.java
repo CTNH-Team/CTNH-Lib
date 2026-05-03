@@ -35,11 +35,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.tuple.Pair;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
@@ -64,7 +61,6 @@ public class CNRegistrate extends GTRegistrate {
      */
     protected CNRegistrate(String modid) {
         super(modid);
-        this.langProcessor = new LangProcessor(this);
     }
 
     public <T extends Item> CTNHItemBuilder<T, GTRegistrate> item(String name,
@@ -194,9 +190,6 @@ public class CNRegistrate extends GTRegistrate {
         return new CTNHTagPrefix(this, name);
     }
 
-    private final LangProcessor langProcessor;
-    private final ObjectSet<Class<?>> langProcessed = new ObjectOpenHashSet<>();
-
     // Chinese
     private final NonNullSupplier<List<Pair<String, String>>> extraCNLang = NonNullSupplier.lazy(() -> {
         final List<Pair<String, String>> ret = new ArrayList<>();
@@ -264,10 +257,8 @@ public class CNRegistrate extends GTRegistrate {
     }
 
     public CNRegistrate addLangProcessor() {
-        this.addDataGenerator(ProviderType.LANG, prov -> {
-            LangProcessor processor = new LangProcessor(this);
-            processor.processAll();
-        });
+        LangProcessor processor = new LangProcessor(this);
+        processor.processAll();
         return this;
     }
 
