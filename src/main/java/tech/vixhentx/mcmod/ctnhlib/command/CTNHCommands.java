@@ -31,12 +31,12 @@ import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
 /**
- * Brigadier registration entrypoint for the {@code /ctnh} inspection commands.
- * Permission level is 0, so all players can run them.
+ * Brigadier 注册入口，用于 {@code /ctnh} 检查命令。
+ * 权限等级为 0，因此所有玩家均可执行。
  */
 public final class CTNHCommands {
 
-    /** Suggests known item/block/fluid tag IDs based on the requested inspection type. */
+    /** 根据请求的检查类型，建议已知的物品/方块/流体标签 ID。 */
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_TAGS = (ctx, builder) -> {
         InspectType type = parseInspectType(ctx);
         if (type == null) {
@@ -82,7 +82,7 @@ public final class CTNHCommands {
         return null;
     }
 
-    // ---- /ctnh hand ----------------------------------------------------------------
+    // ---- /ctnh hand 手持物品检查 ----------------------------------------------------
 
     private static int executeHand(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
@@ -105,7 +105,7 @@ public final class CTNHCommands {
     private static void sendHandReport(ServerPlayer player, ItemStack stack) {
         ResourceLocation itemId = CTNHCommandInspector.itemId(stack);
         Component itemName = stack.getHoverName();
-        // Item header.
+        // 物品信息
         sendLabeled(player,
                 Component.translatable("command.ctnhlib.hand.item_name"),
                 itemName.getString());
@@ -125,7 +125,7 @@ public final class CTNHCommands {
                 Component.translatable("command.ctnhlib.hand.item_tags"),
                 joinIds(CTNHCommandInspector.itemTags(stack)));
 
-        // Block info, if applicable.
+        // 方块信息（如适用）
         ResourceLocation blockId = CTNHCommandInspector.blockId(stack);
         if (blockId != null) {
             sendLabeled(player,
@@ -139,7 +139,7 @@ public final class CTNHCommands {
                     joinIds(CTNHCommandInspector.blockTags(stack)));
         }
 
-        // Fluid info, if applicable.
+        // 流体信息（如适用）
         List<FluidEntry> fluids = CTNHCommandInspector.fluidsIn(stack);
         if (fluids.isEmpty()) {
             player.sendSystemMessage(CTNHCommandChatHelper.info(
@@ -168,7 +168,7 @@ public final class CTNHCommands {
         }
     }
 
-    // ---- /ctnh showtag -------------------------------------------------------------
+    // ---- /ctnh showtag 标签展示 ----------------------------------------------------
 
     private static int executeShowTag(CommandContext<CommandSourceStack> ctx, InspectType type) {
         CommandSourceStack source = ctx.getSource();
@@ -209,7 +209,7 @@ public final class CTNHCommands {
         return members.size();
     }
 
-    // ---- helpers -------------------------------------------------------------------
+    // ---- 辅助方法 -------------------------------------------------------------------
 
     private static String joinIds(List<ResourceLocation> ids) {
         if (ids == null || ids.isEmpty()) {

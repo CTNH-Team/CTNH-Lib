@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Read-only utility helpers for the /ctnh inspection commands. Centralizes
- * resource-id/name/NBT/tag extraction for items, blocks, and fluids, and tag-member
- * enumeration via {@link RegistryAccess} so datapack changes are honored at runtime.
+ * 用于 /ctnh 检查命令的只读工具辅助类。集中处理物品、方块和流体的
+ * 资源 ID/名称/NBT/标签提取，以及通过 {@link RegistryAccess} 进行标签成员
+ * 枚举，从而在运行时尊重数据包变更。
  */
 public final class CTNHCommandInspector {
 
     private CTNHCommandInspector() {}
 
-    /** Lightweight payload describing a single fluid inside a held container. */
+    /** 描述手持容器中单个流体的轻量级负载数据结构。 */
     public record FluidEntry(FluidStack stack) {
 
         public Fluid fluid() {
@@ -70,13 +70,13 @@ public final class CTNHCommandInspector {
         }
     }
 
-    /** Item registry id, falling back to {@code minecraft:air} when missing. */
+    /** 物品注册 ID，缺失时回退为 {@code minecraft:air}。 */
     public static ResourceLocation itemId(ItemStack stack) {
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
         return id != null ? id : ResourceLocation.tryBuild("minecraft", "air");
     }
 
-    /** Block registry id for a {@link BlockItem}, or null when the stack is not a block item. */
+    /** {@link BlockItem} 的方块注册 ID，如果该物品栈不是方块物品则返回 null。 */
     @Nullable
     public static ResourceLocation blockId(ItemStack stack) {
         if (stack.getItem() instanceof BlockItem blockItem) {
@@ -86,7 +86,7 @@ public final class CTNHCommandInspector {
         return null;
     }
 
-    /** Sorted item tag ids attached to the stack's item. */
+    /** 附加到物品栈物品上的已排序物品标签 ID。 */
     public static List<ResourceLocation> itemTags(ItemStack stack) {
         List<ResourceLocation> out = new ArrayList<>();
         stack.getItem().builtInRegistryHolder().tags().forEach(t -> out.add(t.location()));
@@ -94,7 +94,7 @@ public final class CTNHCommandInspector {
         return out;
     }
 
-    /** Sorted block tag ids attached to the block backing a {@link BlockItem}. */
+    /** 附加到 {@link BlockItem} 背后方块上的已排序方块标签 ID。 */
     public static List<ResourceLocation> blockTags(ItemStack stack) {
         if (!(stack.getItem() instanceof BlockItem blockItem)) {
             return Collections.emptyList();
@@ -106,9 +106,9 @@ public final class CTNHCommandInspector {
     }
 
     /**
-     * Enumerate every non-empty fluid contained in the stack. Multi-tank containers
-     * walk their {@link IFluidHandlerItem} tank-by-tank; single-fluid items fall back
-     * to {@link FluidUtil#getFluidContained(ItemStack)} for compatibility.
+     * 枚举物品栈中包含的所有非空流体。多槽容器逐槽遍历其
+     * {@link IFluidHandlerItem}；单流体物品回退到
+     * {@link FluidUtil#getFluidContained(ItemStack)} 以保证兼容性。
      */
     public static List<FluidEntry> fluidsIn(ItemStack stack) {
         if (stack.isEmpty()) {
@@ -137,7 +137,7 @@ public final class CTNHCommandInspector {
         return entries;
     }
 
-    /** Resolve a string to {@code ResourceKey<Registry<?>>} for the given inspection type. */
+    /** 将给定的检查类型解析为对应的 {@code ResourceKey<Registry<?>>}。 */
     public static ResourceKey<? extends Registry<?>> registryKeyFor(InspectType type) {
         return switch (type) {
             case ITEM -> Registries.ITEM;
@@ -147,8 +147,8 @@ public final class CTNHCommandInspector {
     }
 
     /**
-     * Resolve a tag against the runtime registry exposed by the command source. Returns the
-     * holder set if the tag exists, otherwise {@link Optional#empty()}.
+     * 根据命令源暴露的运行时注册表解析标签。如果标签存在则返回
+     * holder set，否则返回 {@link Optional#empty()}。
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Optional<HolderSet.Named<?>> resolveTag(CommandSourceStack source,
@@ -165,7 +165,7 @@ public final class CTNHCommandInspector {
         return registry.getTag(tagKey).map(set -> (HolderSet.Named<?>) set);
     }
 
-    /** Members of a tag in iteration order, mapped to (display name, registry id) pairs. */
+    /** 按迭代顺序返回标签成员，映射为（显示名称，注册 ID）对。 */
     public static List<TagMember> listTagMembers(InspectType type, HolderSet.Named<?> set) {
         List<TagMember> result = new ArrayList<>();
         for (Holder<?> holder : set) {
@@ -203,10 +203,10 @@ public final class CTNHCommandInspector {
         };
     }
 
-    /** Result entry for {@link #listTagMembers(InspectType, HolderSet.Named)}. */
+    /** {@link #listTagMembers(InspectType, HolderSet.Named)} 的结果条目。 */
     public record TagMember(ResourceLocation id, Component displayName) {}
 
-    /** Pretty-print a CompoundTag for chat display (single-line SNBT form). */
+    /** 将 CompoundTag 格式化为适合聊天显示的字符串（单行 SNBT 形式）。 */
     public static String prettyNbt(@Nullable CompoundTag tag) {
         if (tag == null || tag.isEmpty()) {
             return "";
@@ -214,7 +214,7 @@ public final class CTNHCommandInspector {
         return tag.toString();
     }
 
-    /** Inspection target type. */
+    /** 检查目标类型。 */
 
     public enum InspectType {
 
