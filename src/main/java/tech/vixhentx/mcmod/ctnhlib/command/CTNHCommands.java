@@ -36,6 +36,12 @@ import static net.minecraft.commands.Commands.literal;
  */
 public final class CTNHCommands {
 
+    private static final ChatFormatting NAME_COLOR = ChatFormatting.AQUA;
+    private static final ChatFormatting RESOURCE_ID_COLOR = ChatFormatting.GREEN;
+    private static final ChatFormatting COUNT_COLOR = ChatFormatting.YELLOW;
+    private static final ChatFormatting NBT_COLOR = ChatFormatting.LIGHT_PURPLE;
+    private static final ChatFormatting TAG_COLOR = ChatFormatting.DARK_GREEN;
+
     /** 根据请求的检查类型，建议已知的物品/方块/流体标签 ID。 */
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_TAGS = (ctx, builder) -> {
         InspectType type = parseInspectType(ctx);
@@ -108,35 +114,41 @@ public final class CTNHCommands {
         // 物品信息
         sendLabeled(player,
                 Component.translatable("command.ctnhlib.hand.item_name"),
-                itemName.getString());
+                itemName.getString(),
+                NAME_COLOR);
         sendLabeled(player,
                 Component.translatable("command.ctnhlib.hand.item_id"),
-                itemId.toString());
+                itemId.toString(),
+                RESOURCE_ID_COLOR);
         sendLabeled(player,
                 Component.translatable("command.ctnhlib.hand.item_count"),
-                String.valueOf(stack.getCount()));
+                String.valueOf(stack.getCount()),
+                COUNT_COLOR);
 
         CompoundTag tag = stack.getTag();
         sendLabeled(player,
                 Component.translatable("command.ctnhlib.hand.item_nbt"),
-                CTNHCommandInspector.prettyNbt(tag));
+                CTNHCommandInspector.prettyNbt(tag),
+                NBT_COLOR);
 
-        sendLabeled(player,
+        sendTagLines(player,
                 Component.translatable("command.ctnhlib.hand.item_tags"),
-                joinIds(CTNHCommandInspector.itemTags(stack)));
+                CTNHCommandInspector.itemTags(stack));
 
         // 方块信息（如适用）
         ResourceLocation blockId = CTNHCommandInspector.blockId(stack);
         if (blockId != null) {
             sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.block_name"),
-                    Component.translatable(stack.getItem().getDescriptionId()).getString());
+                    Component.translatable(stack.getItem().getDescriptionId()).getString(),
+                    NAME_COLOR);
             sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.block_id"),
-                    blockId.toString());
-            sendLabeled(player,
+                    blockId.toString(),
+                    RESOURCE_ID_COLOR);
+            sendTagLines(player,
                     Component.translatable("command.ctnhlib.hand.block_tags"),
-                    joinIds(CTNHCommandInspector.blockTags(stack)));
+                    CTNHCommandInspector.blockTags(stack));
         }
 
         // 流体信息（如适用）
@@ -152,19 +164,23 @@ public final class CTNHCommands {
                     Component.translatable("command.ctnhlib.hand.fluid_header", i + 1)));
             sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.fluid_name"),
-                    entry.displayName().getString());
+                    entry.displayName().getString(),
+                    NAME_COLOR);
             sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.fluid_id"),
-                    entry.id().toString());
+                    entry.id().toString(),
+                    RESOURCE_ID_COLOR);
             sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.fluid_amount"),
-                    String.valueOf(entry.amount()));
+                    String.valueOf(entry.amount()),
+                    COUNT_COLOR);
             sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.fluid_nbt"),
-                    CTNHCommandInspector.prettyNbt(entry.tag()));
-            sendLabeled(player,
+                    CTNHCommandInspector.prettyNbt(entry.tag()),
+                    NBT_COLOR);
+            sendTagLines(player,
                     Component.translatable("command.ctnhlib.hand.fluid_tags"),
-                    joinIds(entry.tags()));
+                    entry.tags());
         }
     }
 
@@ -196,7 +212,7 @@ public final class CTNHCommands {
         for (TagMember member : members) {
             String displayName = member.displayName().getString();
             String idString = member.id().toString();
-            String copyText = String.format("- %s (%s)", displayName, idString);
+            String copyText = idString;
             String langKey = type == InspectType.FLUID ?
                     "command.ctnhlib.showtag.fluid_member" :
                     "command.ctnhlib.showtag.member";
@@ -211,23 +227,24 @@ public final class CTNHCommands {
 
     // ---- 辅助方法 -------------------------------------------------------------------
 
-    private static String joinIds(List<ResourceLocation> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < ids.size(); i++) {
-            if (i > 0) sb.append(", ");
-            sb.append(ids.get(i).toString());
-        }
-        return sb.toString();
+    private static void sendLabeled(ServerPlayer player, Component label, String value) {
+        sendLabeled(player, label, value, ChatFormatting.WHITE);
     }
 
-    private static void sendLabeled(ServerPlayer player, Component label, String value) {
+    private static void sendLabeled(ServerPlayer player, Component label, String value, ChatFormatting valueColor) {
         String safeValue = value == null || value.isEmpty() ?
                 Component.translatable("command.ctnhlib.value.empty").getString() :
                 value;
-        for (Component line : CTNHCommandChatHelper.labeledLines(label, safeValue)) {
+        for (Component line : CTNHCommandChatHelper.labeledLines(label, safeValue, valueColor)) {
+            player.sendSystemMessage(line);
+        }
+    }
+
+    private static void sendTagLines(ServerPlayer player, Component label, List<ResourceLocation> tagIds) {
+        List<String> tagIdStrings = tagIds == null ?
+                List.of() :
+                tagIds.stream().map(ResourceLocation::toString).toList();
+        for (Component line : CTNHCommandChatHelper.labeledTagLines(label, tagIdStrings, TAG_COLOR)) {
             player.sendSystemMessage(line);
         }
     }

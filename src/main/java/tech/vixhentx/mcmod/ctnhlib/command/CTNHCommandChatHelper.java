@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * 用于构建 /ctnh 检查命令的点击复制聊天行的辅助工具。
- * 每行输出的文本在点击时会复制完整的 "label: value" 内容，并显示悬浮提示。
+ * 每行输出的文本在点击时会复制对应值内容，并显示悬浮提示。
  */
 public final class CTNHCommandChatHelper {
 
@@ -30,11 +30,23 @@ public final class CTNHCommandChatHelper {
      * @return 一个或多个可发送的 {@link Component} 行
      */
     public static List<Component> labeledLines(Component label, String value) {
+        return labeledLines(label, value, ChatFormatting.WHITE);
+    }
+
+    /**
+     * 为带标签的值构建一个或多个可点击的聊天行，并用指定颜色显示值部分。
+     * 长值将被拆分为额外的可复制续行，以避免聊天窗口静默丢弃内容。
+     *
+     * @param label      本地化标签
+     * @param value      原始值字符串（不能为 null）
+     * @param valueColor 值文本颜色
+     * @return 一个或多个可发送的 {@link Component} 行
+     */
+    public static List<Component> labeledLines(Component label, String value, ChatFormatting valueColor) {
         List<Component> lines = new ArrayList<>();
         String safe = value == null ? "" : value;
-        String labelText = label.getString();
         if (safe.length() <= MAX_VALUE_LINE_LENGTH) {
-            lines.add(buildLine(label, safe, labelText + ": " + safe));
+            lines.add(buildLine(label, safe, safe, valueColor));
             return lines;
         }
         int total = safe.length();
@@ -45,9 +57,8 @@ public final class CTNHCommandChatHelper {
             MutableComponent labelComp = chunkIndex == 0 ?
                     label.copy() :
                     label.copy().append(Component.literal(" [" + (chunkIndex + 1) + "]"));
-            String chunkLabelText = labelComp.getString();
-            // 每个块复制完整的 "label: chunk" 文本，以便用户粘贴完整信息。
-            lines.add(buildLine(labelComp, chunk, chunkLabelText + ": " + chunk));
+            // 每个块只复制对应值块，避免包含标签前缀。
+            lines.add(buildLine(labelComp, chunk, chunk, valueColor));
             chunkIndex++;
         }
         // 尾部摘要行（不可复制，仅用于提示信息）。
@@ -56,12 +67,35 @@ public final class CTNHCommandChatHelper {
         return lines;
     }
 
+    /** 为多个标签 ID 构建逐行显示的可复制聊天行，每行点击时仅复制标签 ID。 */
+    public static List<Component> labeledTagLines(Component label, List<String> tagIds, ChatFormatting tagColor) {
+        List<Component> lines = new ArrayList<>();
+        if (tagIds == null || tagIds.isEmpty()) {
+            lines.addAll(labeledLines(label,
+                    Component.translatable("command.ctnhlib.value.empty").getString(),
+                    tagColor));
+            return lines;
+        }
+        for (String tagId : tagIds) {
+            String safe = tagId == null ? "" : tagId;
+            lines.add(buildLine(label, safe, safe, tagColor));
+        }
+        return lines;
+    }
+
     /**
      * 构建单个聊天行，其可见文本为 "label: value"，单击事件将逐字复制提供的 {@code copyText}。
      */
     public static Component buildLine(Component label, String value, String copyText) {
+        return buildLine(label, value, copyText, ChatFormatting.WHITE);
+    }
+
+    /**
+     * 构建单个聊天行，其可见文本为 "label: value"，单击事件将逐字复制提供的 {@code copyText}。
+     */
+    public static Component buildLine(Component label, String value, String copyText, ChatFormatting valueColor) {
         MutableComponent labelStyled = label.copy().withStyle(ChatFormatting.AQUA);
-        MutableComponent valueStyled = Component.literal(value).withStyle(ChatFormatting.WHITE);
+        MutableComponent valueStyled = Component.literal(value).withStyle(valueColor);
         MutableComponent line = Component.empty()
                 .append(labelStyled)
                 .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
