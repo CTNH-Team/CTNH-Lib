@@ -41,6 +41,7 @@ public final class CTNHCommands {
     private static final ChatFormatting COUNT_COLOR = ChatFormatting.YELLOW;
     private static final ChatFormatting NBT_COLOR = ChatFormatting.LIGHT_PURPLE;
     private static final ChatFormatting TAG_COLOR = ChatFormatting.DARK_GREEN;
+    private static final ChatFormatting MOD_COLOR = ChatFormatting.DARK_AQUA;
 
     /** 根据请求的检查类型，建议已知的物品/方块/流体标签 ID。 */
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_TAGS = (ctx, builder) -> {
@@ -121,6 +122,11 @@ public final class CTNHCommands {
                 itemId.toString(),
                 RESOURCE_ID_COLOR);
         sendLabeled(player,
+                Component.translatable("command.ctnhlib.hand.item_mod"),
+                modDisplay(itemId),
+                itemId.getNamespace(),
+                MOD_COLOR);
+        sendLabeled(player,
                 Component.translatable("command.ctnhlib.hand.item_count"),
                 String.valueOf(stack.getCount()),
                 COUNT_COLOR);
@@ -131,9 +137,12 @@ public final class CTNHCommands {
                 CTNHCommandInspector.prettyNbt(tag),
                 NBT_COLOR);
 
+        CommandSourceStack source = player.createCommandSourceStack();
         sendTagLines(player,
+                source,
                 Component.translatable("command.ctnhlib.hand.item_tags"),
-                CTNHCommandInspector.itemTags(stack));
+                CTNHCommandInspector.itemTags(stack),
+                InspectType.ITEM);
 
         // 方块信息（如适用）
         ResourceLocation blockId = CTNHCommandInspector.blockId(stack);
@@ -146,9 +155,16 @@ public final class CTNHCommands {
                     Component.translatable("command.ctnhlib.hand.block_id"),
                     blockId.toString(),
                     RESOURCE_ID_COLOR);
+            sendLabeled(player,
+                    Component.translatable("command.ctnhlib.hand.block_mod"),
+                    modDisplay(blockId),
+                    blockId.getNamespace(),
+                    MOD_COLOR);
             sendTagLines(player,
+                    source,
                     Component.translatable("command.ctnhlib.hand.block_tags"),
-                    CTNHCommandInspector.blockTags(stack));
+                    CTNHCommandInspector.blockTags(stack),
+                    InspectType.BLOCK);
         }
 
         // 流体信息（如适用）
@@ -171,6 +187,11 @@ public final class CTNHCommands {
                     entry.id().toString(),
                     RESOURCE_ID_COLOR);
             sendLabeled(player,
+                    Component.translatable("command.ctnhlib.hand.fluid_mod"),
+                    modDisplay(entry.id()),
+                    entry.id().getNamespace(),
+                    MOD_COLOR);
+            sendLabeled(player,
                     Component.translatable("command.ctnhlib.hand.fluid_amount"),
                     String.valueOf(entry.amount()),
                     COUNT_COLOR);
@@ -179,8 +200,10 @@ public final class CTNHCommands {
                     CTNHCommandInspector.prettyNbt(entry.tag()),
                     NBT_COLOR);
             sendTagLines(player,
+                    source,
                     Component.translatable("command.ctnhlib.hand.fluid_tags"),
-                    entry.tags());
+                    entry.tags(),
+                    InspectType.FLUID);
         }
     }
 
@@ -232,20 +255,55 @@ public final class CTNHCommands {
     }
 
     private static void sendLabeled(ServerPlayer player, Component label, String value, ChatFormatting valueColor) {
+        sendLabeled(player, label, value, value, valueColor);
+    }
+
+    private static void sendLabeled(ServerPlayer player,
+                                    Component label,
+                                    String value,
+                                    String copyText,
+                                    ChatFormatting valueColor) {
         String safeValue = value == null || value.isEmpty() ?
                 Component.translatable("command.ctnhlib.value.empty").getString() :
                 value;
-        for (Component line : CTNHCommandChatHelper.labeledLines(label, safeValue, valueColor)) {
+        for (Component line : CTNHCommandChatHelper.labeledLines(label, safeValue, copyText, valueColor)) {
             player.sendSystemMessage(line);
         }
     }
 
-    private static void sendTagLines(ServerPlayer player, Component label, List<ResourceLocation> tagIds) {
+    private static void sendTagLines(ServerPlayer player,
+                                     CommandSourceStack source,
+                                     Component label,
+                                     List<ResourceLocation> tagIds,
+                                     InspectType type) {
         List<String> tagIdStrings = tagIds == null ?
                 List.of() :
                 tagIds.stream().map(ResourceLocation::toString).toList();
-        for (Component line : CTNHCommandChatHelper.labeledTagLines(label, tagIdStrings, TAG_COLOR)) {
+        for (Component line : CTNHCommandChatHelper.labeledTagLines(label, tagIdStrings, TAG_COLOR,
+                tagId -> tagHover(type, tagMemberCount(source, type, ResourceLocation.tryParse(tagId))))) {
             player.sendSystemMessage(line);
         }
+    }
+
+    private static String modDisplay(ResourceLocation id) {
+        return "@" + id.getNamespace();
+    }
+
+    private static int tagMemberCount(CommandSourceStack source, InspectType type, ResourceLocation tagId) {
+        if (tagId == null) {
+            return 0;
+        }
+        return CTNHCommandInspector.resolveTag(source, type, tagId)
+                .map(set -> CTNHCommandInspector.listTagMembers(type, set).size())
+                .orElse(0);
+    }
+
+    private static Component tagHover(InspectType type, int count) {
+        String key = switch (type) {
+            case ITEM -> "command.ctnhlib.copy.hover.item_tag";
+            case BLOCK -> "command.ctnhlib.copy.hover.block_tag";
+            case FLUID -> "command.ctnhlib.copy.hover.fluid_tag";
+        };
+        return Component.translatable(key, count);
     }
 }
