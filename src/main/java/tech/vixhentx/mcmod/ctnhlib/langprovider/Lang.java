@@ -1,9 +1,9 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import com.ctnhlang.LangFactory;
-import net.minecraft.network.chat.MutableComponent;
 
 @LangFactory
 public final class Lang implements com.ctnhlang.Lang {

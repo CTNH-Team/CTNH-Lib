@@ -93,7 +93,8 @@ public final class LangKeyBuilder {
         return new ClassMetadata(
                 domain != null ? domain.value() : "",
                 "",
-                resolveCategory(domain != null ? domain.value() : "", category != null ? category.value() : "", ownerClass.getSimpleName()),
+                resolveCategory(domain != null ? domain.value() : "", category != null ? category.value() : "",
+                        ownerClass.getSimpleName()),
                 prefix != null ? resolveAffix(prefix.value(), ownerClass.getSimpleName()) : "",
                 suffix != null ? resolveAffix(suffix.value(), ownerClass.getSimpleName()) : "");
     }
@@ -119,7 +120,8 @@ public final class LangKeyBuilder {
             }
         }
 
-        return new ClassMetadata(domain, root, resolveCategory(domain, category, simpleName(classNode.name)), prefix, suffix);
+        return new ClassMetadata(domain, root, resolveCategory(domain, category, simpleName(classNode.name)), prefix,
+                suffix);
     }
 
     private static String getExplicitKey(Field field) {
@@ -158,9 +160,7 @@ public final class LangKeyBuilder {
     }
 
     private static String resolveAffix(String explicitValue, String className) {
-        return explicitValue == null || explicitValue.isEmpty()
-                ? className.toLowerCase(Locale.ROOT)
-                : explicitValue;
+        return explicitValue == null || explicitValue.isEmpty() ? className.toLowerCase(Locale.ROOT) : explicitValue;
     }
 
     private static String simpleName(String internalName) {

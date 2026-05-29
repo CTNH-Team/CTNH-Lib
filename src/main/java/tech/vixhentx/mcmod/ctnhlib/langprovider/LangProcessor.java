@@ -1,8 +1,5 @@
 package tech.vixhentx.mcmod.ctnhlib.langprovider;
 
-import com.ctnhlang.CN;
-import com.ctnhlang.EN;
-import com.ctnhlang.IgnoreLang;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModFileInfo;
@@ -10,6 +7,9 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.forgespi.locating.IModFile;
 
+import com.ctnhlang.CN;
+import com.ctnhlang.EN;
+import com.ctnhlang.IgnoreLang;
 import com.ctnhlang.langprovider.LangKeyBuilder;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
@@ -18,9 +18,9 @@ import org.objectweb.asm.tree.FieldNode;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import tech.vixhentx.mcmod.ctnhlib.registrate.CNRegistrate;
 
-import java.lang.annotation.ElementType;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.ElementType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,7 +119,8 @@ public class LangProcessor {
                 }
             }
             if (enValues.length != cnValues.length && enValues.length != 0 && cnValues.length != 0) {
-                CTNHLib.LOGGER.warn("Mismatched @EN/@CN array lengths on {}#{}", primary.clazz().getClassName(), field.name);
+                CTNHLib.LOGGER.warn("Mismatched @EN/@CN array lengths on {}#{}", primary.clazz().getClassName(),
+                        field.name);
             }
             return;
         }
@@ -139,7 +140,8 @@ public class LangProcessor {
                 return null;
             }
             ClassNode classNode = new ClassNode();
-            new ClassReader(stream).accept(classNode, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+            new ClassReader(stream).accept(classNode,
+                    ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
             return classNode;
         }
     }
