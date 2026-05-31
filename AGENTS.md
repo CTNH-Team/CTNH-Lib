@@ -8,7 +8,7 @@ CTNH-Lib is the shared support module for CTNH code. It contains common proxies,
 - Registrate helpers: `src/main/java/tech/vixhentx/mcmod/ctnhlib/registrate/`. `CNRegistrate`, networking, builder wrappers.
 - Builder APIs: `src/main/java/tech/vixhentx/mcmod/ctnhlib/registrate/builders/`. Shared block/item/machine/material/recipe builders.
 - Dynamic data: `src/main/java/tech/vixhentx/mcmod/ctnhlib/data/CTNHDynamicDataPack.java`. Runtime datapack support.
-- Ponder framework: `src/main/java/tech/vixhentx/mcmod/ctnhlib/client/ponder/CTNHPonderSceneBuilder.java`. Provides shared baseplate/camera helpers and `title/showText` bilingual text registration via module-supplied `LangRegistrar`.
+- Ponder framework: `src/main/java/tech/vixhentx/mcmod/ctnhlib/client/ponder/CTNHPonderSceneBuilder.java` and `CTNHPonderLang.java`. Provides shared baseplate/camera helpers, `title/showText` bilingual text registration via module-supplied `LangRegistrar`, and shared Ponder scene lang extraction for datagen.
 - Lang annotations: `src/main/java/com/ctnhlang/`. `@CN`, `@EN`, category/domain annotations.
 - Datagen bugfix mixin: `src/main/java/tech/vixhentx/mcmod/ctnhlib/mixin/MiscForgeHelperMixin.java`. Fixes Forge datagen shutdown behavior.
 
@@ -18,13 +18,13 @@ CTNH-Lib is the shared support module for CTNH code. It contains common proxies,
 - Runtime helper item: `common/CommonProxy.java` registers `MultiblockHelper` through GTCEu's registrate.
 - Networking/datapack: `registrate/CTNHLibNetworking.java`, `data/CTNHDynamicDataPack.java`.
 - Lang/datagen support: `registrate/lang/RegistrateCNLangProvider.java` and `com.ctnhlang.*` annotations.
-- Ponder support: `client/ponder/CTNHPonderSceneBuilder.java` is reusable infrastructure only; modules pass their mod id and registrate lang callback from their adapter builders.
+- Ponder support: `client/ponder/CTNHPonderSceneBuilder.java` is reusable scene infrastructure and `CTNHPonderLang.java` is reusable datagen lang extraction; modules pass their mod id and registrate lang callback from adapter builders and pass their own `PonderPlugin` to `CTNHPonderLang.init(...)`.
 - Do not add normal gameplay items/blocks here; add shared registration helpers only.
 
 ## CONVENTIONS
 - Main library namespace is `tech.vixhentx.mcmod.ctnhlib`; lang annotation namespace is `com.ctnhlang`.
 - Resource count is intentionally tiny compared with gameplay modules.
-- Changes here can affect all CTNH modules through shared builders, annotations, and the shared Ponder scene builder.
+- Changes here can affect all CTNH modules through shared builders, annotations, and shared Ponder support.
 
 ## COMMANDS
 ```bash
