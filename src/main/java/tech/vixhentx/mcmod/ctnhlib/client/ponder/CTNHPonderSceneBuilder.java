@@ -127,8 +127,7 @@ public class CTNHPonderSceneBuilder extends CreateSceneBuilder {
     @FunctionalInterface
     public interface LangRegistrar {
 
-        LangRegistrar NOOP = (key, en, cn) -> {
-        };
+        LangRegistrar NOOP = (key, en, cn) -> {};
 
         void register(String key, String en, String cn);
     }

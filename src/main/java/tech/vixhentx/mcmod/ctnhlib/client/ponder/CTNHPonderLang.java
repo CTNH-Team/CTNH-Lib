@@ -6,8 +6,7 @@ import net.createmod.ponder.foundation.registration.PonderLocalization;
 
 public final class CTNHPonderLang {
 
-    private CTNHPonderLang() {
-    }
+    private CTNHPonderLang() {}
 
     public static void init(PonderPlugin plugin) {
         PonderIndex.addPlugin(plugin);
