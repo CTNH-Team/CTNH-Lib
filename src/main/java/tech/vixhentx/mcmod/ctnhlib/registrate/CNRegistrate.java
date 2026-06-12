@@ -257,8 +257,10 @@ public class CNRegistrate extends GTRegistrate {
     }
 
     public CNRegistrate addLangProcessor() {
-        LangProcessor processor = new LangProcessor(this);
-        processor.processAll();
+        if (GTCEu.isDataGen()) {
+            LangProcessor processor = new LangProcessor(this);
+            processor.processAll();
+        }
         return this;
     }
 
