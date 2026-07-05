@@ -8,7 +8,6 @@
     "GTJadePluginMixin",
     "GTRecipesMixin",
     "MachineBuilderMixin",
-    "MiscForgeHelperMixin",
     "TMRVMixin"
   ],
   "client": [

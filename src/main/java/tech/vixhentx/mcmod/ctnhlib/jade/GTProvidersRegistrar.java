@@ -22,7 +22,7 @@ public final class GTProvidersRegistrar {
     private static void registerBlockDataProviders() {
         JadePriorityManager.registerBlockData(new ElectricContainerBlockProvider(), BlockEntity.class, 1100,
                 "electric_container_data");
-        JadePriorityManager.registerBlockData(new WorkableBlockProvider(), BlockEntity.class, 1200, "workable_data");
+        JadePriorityManager.registerBlockData(new WorkLogicMachineProvider(), BlockEntity.class, 1200, "workable_data");
         JadePriorityManager.registerBlockData(new ControllableBlockProvider(), BlockEntity.class, 1300,
                 "controllable_data");
         // JadePriorityManager.registerBlockData(new RecipeLogicProvider(), BlockEntity.class, 1400,
@@ -53,19 +53,12 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockData(new DataBankBlockProvider(), BlockEntity.class, 2750, "databank_data");
         JadePriorityManager.registerBlockData(new EnergyConverterModeProvider(), BlockEntity.class, 2800,
                 "energy_converter_mode_data");
-
-        if (GTCEu.Mods.isAE2Loaded()) {
-            JadePriorityManager.registerBlockData(new MEPatternBufferProvider(), BlockEntity.class, 2900,
-                    "me_pattern_buffer_data");
-            JadePriorityManager.registerBlockData(new MEPatternBufferProxyProvider(), BlockEntity.class, 3000,
-                    "me_pattern_buffer_proxy_data");
-        }
     }
 
     private static void registerBlockComponentProviders() {
         JadePriorityManager.registerBlockComponent(new ElectricContainerBlockProvider(), Block.class, 1100,
                 "electric_container_component");
-        JadePriorityManager.registerBlockComponent(new WorkableBlockProvider(), Block.class, 1200,
+        JadePriorityManager.registerBlockComponent(new WorkLogicMachineProvider(), Block.class, 1200,
                 "workable_component");
         JadePriorityManager.registerBlockComponent(new ControllableBlockProvider(), Block.class, 1300,
                 "controllable_component");
@@ -98,12 +91,5 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockComponent(new DataBankBlockProvider(), Block.class, 2750, "databank_data");
         JadePriorityManager.registerBlockComponent(new EnergyConverterModeProvider(), Block.class, 2800,
                 "energy_converter_mode_component");
-
-        if (GTCEu.Mods.isAE2Loaded()) {
-            JadePriorityManager.registerBlockComponent(new MEPatternBufferProvider(), Block.class, 2900,
-                    "me_pattern_buffer_component");
-            JadePriorityManager.registerBlockComponent(new MEPatternBufferProxyProvider(), Block.class, 3000,
-                    "me_pattern_buffer_proxy_component");
-        }
     }
 }
