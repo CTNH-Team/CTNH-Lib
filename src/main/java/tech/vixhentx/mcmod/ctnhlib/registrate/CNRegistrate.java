@@ -14,6 +14,7 @@ import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeSerializer;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
@@ -39,6 +40,7 @@ import com.tterrag.registrate.util.nullness.NonNullFunction;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.LangProcessor;
 import tech.vixhentx.mcmod.ctnhlib.registrate.builders.*;
 
@@ -172,6 +174,12 @@ public class CNRegistrate extends GTRegistrate {
                                      Function<GTRecipeType, GTRecipeTypeUI> uiFactory, RecipeType<?>... proxyRecipes) {
         var type = recipeType(resourceLocation, group, proxyRecipes);
         return (CTNHRecipeType) type.setRecipeUI(uiFactory.apply(type));
+    }
+
+    public CTNHRecipeCategory recipeCategory(ResourceLocation resourceLocation, @NotNull GTRecipeType recipeType) {
+        var category = new CTNHRecipeCategory(this, resourceLocation, recipeType);
+        GTRegistries.RECIPE_CATEGORIES.register(category.registryKey, category);
+        return category;
     }
 
     public CTNHTagPrefix oreTagPrefix(String name, TagKey<Block> miningToolTag) {

@@ -1,6 +1,5 @@
 package tech.vixhentx.mcmod.ctnhlib.jade;
 
-import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.integration.jade.provider.*;
 
 import net.minecraft.world.level.block.Block;
