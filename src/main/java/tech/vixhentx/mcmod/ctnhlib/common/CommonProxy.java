@@ -4,12 +4,15 @@ import com.gregtechceu.gtceu.data.pack.GTPackSource;
 
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddPackFindersEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
+import tech.vixhentx.mcmod.ctnhlib.command.CTNHCommands;
 import tech.vixhentx.mcmod.ctnhlib.data.DataFilterPack;
 import tech.vixhentx.mcmod.ctnhlib.jade.GTProvidersRegistrar;
 import tech.vixhentx.mcmod.ctnhlib.registrate.CTNHLibNetworking;
@@ -21,6 +24,8 @@ public class CommonProxy {
     public CommonProxy(FMLJavaModLoadingContext context) {
         IEventBus eventBus = context.getModEventBus();
         eventBus.register(this);
+        // Forge-bus events such as RegisterCommandsEvent must be subscribed to the global Forge bus.
+        MinecraftForge.EVENT_BUS.register(CommonProxy.class);
         init();
 
         ItemEntry<MultiblockHelper> multiblockHelper = REGISTRATE
@@ -42,5 +47,10 @@ public class CommonProxy {
                     Pack.Position.TOP,
                     DataFilterPack::new));
         }
+    }
+
+    @SubscribeEvent
+    public static void registerCommands(RegisterCommandsEvent event) {
+        CTNHCommands.register(event.getDispatcher(), event.getBuildContext());
     }
 }
