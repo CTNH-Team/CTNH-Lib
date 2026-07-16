@@ -22,7 +22,7 @@ public class CTNHMaterial extends Material {
         }
 
         public Builder lang(String lang) {
-            registrate.addRawLang(id.toLanguageKey("material"), lang);
+            langValue(lang);
             return this;
         }
 
