@@ -3,8 +3,11 @@ package tech.vixhentx.mcmod.ctnhlib.utils;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
+import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.recipe.handler.RecipeHandlerGroup;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
@@ -16,7 +19,11 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.fluids.FluidStack;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class MachineUtils {
 
@@ -212,6 +219,30 @@ public class MachineUtils {
         return executeRecipe(GTRecipeBuilder.ofRaw().outputCWU(cwu).buildRuntime(), group, IO.OUT);
     }
 
+    public static void applyContents(MultiblockControllerMachine machine, Consumer<Object> contentHandler,
+                                     RecipeCapability<?> capability) {
+        applyContents(machine, contentHandler, capability, null);
+    }
+
+    public static void applyContents(MultiblockControllerMachine machine, Consumer<Object> contentHandler,
+                                     RecipeCapability<?> capability, @Nullable IO io) {
+        machine.getParts().forEach(part -> part.getRecipeHandlers().forEach(handlerList -> {
+            handlerList.getCapability(capability).stream()
+                    .filter(handler -> io == null || handler.getHandlerIO() == io)
+                    .forEach(handler -> handler.getContents().forEach(contentHandler));
+        }));
+    }
+
+    public static void applyContents(MultiblockControllerMachine machine, BiConsumer<Object, IMultiPart> contentHandler,
+                                     RecipeCapability<?> capability, @Nullable IO io) {
+        machine.getParts().forEach(part -> part.getRecipeHandlers().forEach(handlerList -> {
+            handlerList.getCapability(capability)
+                    .stream()
+                    .filter(handler -> io == null || handler.getHandlerIO() == io)
+                    .forEach(handler -> handler.getContents().forEach(content -> contentHandler.accept(content, part)));
+        }));
+    }
+
     private static FluidStack[] toFluidStacks(int amount, Fluid... fluids) {
         return Arrays.stream(fluids).map(fluid -> new FluidStack(fluid, amount)).toArray(FluidStack[]::new);
     }
@@ -253,10 +284,10 @@ public class MachineUtils {
                 return pos.offset(leftoff, upoff, -backoff);
             }
             case WEST -> {
-                return pos.offset(backoff, upoff, -leftoff);
+                return pos.offset(backoff, upoff, leftoff);
             }
             case EAST -> {
-                return pos.offset(-backoff, upoff, leftoff);
+                return pos.offset(-backoff, upoff, -leftoff);
             }
         }
         return pos;
@@ -273,10 +304,10 @@ public class MachineUtils {
                 return AABB.of(BoundingBox.fromCorners(pos.offset(left1, up1, -back1), pos.offset(left2, up2, -back2)));
             }
             case WEST -> {
-                return AABB.of(BoundingBox.fromCorners(pos.offset(back1, up1, -left1), pos.offset(back2, up2, -left2)));
+                return AABB.of(BoundingBox.fromCorners(pos.offset(back1, up1, left1), pos.offset(back2, up2, left2)));
             }
             case EAST -> {
-                return AABB.of(BoundingBox.fromCorners(pos.offset(-back1, up1, left1), pos.offset(-back2, up2, left2)));
+                return AABB.of(BoundingBox.fromCorners(pos.offset(-back1, up1, -left1), pos.offset(-back2, up2, -left2)));
             }
         }
         return AABB.of(BoundingBox.fromCorners(pos, pos));
