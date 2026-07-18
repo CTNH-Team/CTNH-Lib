@@ -1,13 +1,13 @@
 package tech.vixhentx.mcmod.ctnhlib.utils;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
-import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.recipe.handler.RecipeHandlerGroup;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
@@ -256,7 +256,7 @@ public class MachineUtils {
     }
 
     public static boolean executeRecipe(GTRecipe recipe, RecipeHandlerGroup group, IO io) {
-        if(RecipeHelper.matchRecipe(group, recipe).isSuccess()) {
+        if (RecipeHelper.matchRecipe(group, recipe).isSuccess()) {
             RecipeHelper.handleRecipeIO(group, recipe, io);
             return true;
         }
@@ -264,8 +264,8 @@ public class MachineUtils {
     }
 
     public static boolean executeRecipe(GTRecipe recipe, IRecipeLogicMachine machine, IO io) {
-        for(var group: machine.getRecipeHandlerGroups()) {
-            if(RecipeHelper.matchRecipe(group, recipe).isSuccess()) {
+        for (var group : machine.getRecipeHandlerGroups()) {
+            if (RecipeHelper.matchRecipe(group, recipe).isSuccess()) {
                 RecipeHelper.handleRecipeIO(group, recipe, io);
                 return true;
             }
@@ -307,7 +307,8 @@ public class MachineUtils {
                 return AABB.of(BoundingBox.fromCorners(pos.offset(back1, up1, left1), pos.offset(back2, up2, left2)));
             }
             case EAST -> {
-                return AABB.of(BoundingBox.fromCorners(pos.offset(-back1, up1, -left1), pos.offset(-back2, up2, -left2)));
+                return AABB
+                        .of(BoundingBox.fromCorners(pos.offset(-back1, up1, -left1), pos.offset(-back2, up2, -left2)));
             }
         }
         return AABB.of(BoundingBox.fromCorners(pos, pos));

@@ -19,7 +19,7 @@ public class CTNHTagPrefix extends TagPrefix {
     }
 
     public CTNHTagPrefix lang(String lang) {
-        registrate.addRawLang(getUnlocalizedName(), lang);
+        langValue(lang);
         return this;
     }
 }

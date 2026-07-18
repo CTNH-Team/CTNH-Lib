@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,11 @@ package tech.vixhentx.mcmod.ctnhlib.utils;
 import it.unimi.dsi.fastutil.objects.*;
 import org.checkerframework.checker.units.qual.K;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
 import java.util.*;
 
-public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K, V> implements java.io.Serializable, Cloneable {
+public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K, V>
+                                implements java.io.Serializable, Cloneable {
+
     /** A reference to the root entry. */
     protected transient Entry<K, V> tree;
     /** Number of entries in this map. */
@@ -135,7 +135,8 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      */
     public LockIdentityHashMap(final K[] k, final V v[], final Comparator<? super K> c) {
         this(c);
-        if (k.length != v.length) throw new IllegalArgumentException("The key array and the value array have different lengths (" + k.length + " and " + v.length + ")");
+        if (k.length != v.length) throw new IllegalArgumentException(
+                "The key array and the value array have different lengths (" + k.length + " and " + v.length + ")");
         for (int i = 0; i < k.length; i++) this.put(k[i], v[i]);
     }
 
@@ -152,7 +153,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
 
     /*
      * The following methods implements some basic building blocks used by
-     * all accessors.  They are (and should be maintained) identical to those used in AVLTreeSet.drv.
+     * all accessors. They are (and should be maintained) identical to those used in AVLTreeSet.drv.
      *
      * The put()/remove() code is derived from Ben Pfaff's GNU libavl
      * (https://adtinfo.org/). If you want to understand what's
@@ -173,7 +174,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      */
     @SuppressWarnings("unchecked")
     final int compare(final K k1, final K k2) {
-        return actualComparator == null ? (((Comparable<K>)(k1)).compareTo(k2)) : actualComparator.compare(k1, k2);
+        return actualComparator == null ? (((Comparable<K>) (k1)).compareTo(k2)) : actualComparator.compare(k1, k2);
     }
 
     /**
@@ -405,8 +406,10 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         }
     }
 
-    /* After execution of this method, {@link #modified} is true iff an entry
-    has been deleted. */
+    /*
+     * After execution of this method, {@link #modified} is true iff an entry
+     * has been deleted.
+     */
     @SuppressWarnings("unchecked")
     @Override
     public synchronized V remove(final Object k) {
@@ -415,7 +418,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         int cmp;
         Entry<K, V> p = tree, q = null;
         boolean dir = false;
-        final K kk = (K)k;
+        final K kk = (K) k;
         while (true) {
             if ((cmp = compare(kk, p.key)) == 0) break;
             else if (dir = cmp > 0) {
@@ -645,6 +648,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      * Note that since the class is recursive, it can be considered equivalently a tree.
      */
     private static final class Entry<K, V> extends BasicEntry<K, V> implements Cloneable {
+
         /** If the bit in this mask is true, {@link #right} points to a successor. */
         private static final int SUCC_MASK = 1 << 31;
         /** If the bit in this mask is true, {@link #left} points to a predecessor. */
@@ -776,7 +780,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
          * @return the current level of this node.
          */
         int balance() {
-            return (byte)info;
+            return (byte) info;
         }
 
         /**
@@ -791,12 +795,12 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
 
         /** Increments the level of this node. */
         void incBalance() {
-            info = info & ~BALANCE_MASK | ((byte)info + 1) & 0xFF;
+            info = info & ~BALANCE_MASK | ((byte) info + 1) & 0xFF;
         }
 
         /** Decrements the level of this node. */
         protected void decBalance() {
-            info = info & ~BALANCE_MASK | ((byte)info - 1) & 0xFF;
+            info = info & ~BALANCE_MASK | ((byte) info - 1) & 0xFF;
         }
 
         /**
@@ -833,7 +837,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         public Entry<K, V> clone() {
             Entry<K, V> c;
             try {
-                c = (Entry<K, V>)super.clone();
+                c = (Entry<K, V>) super.clone();
             } catch (CloneNotSupportedException cantHappen) {
                 throw new InternalError();
             }
@@ -847,7 +851,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         @SuppressWarnings("unchecked")
         public boolean equals(final Object o) {
             if (!(o instanceof Map.Entry)) return false;
-            Map.Entry<K, V> e = (Map.Entry<K, V>)o;
+            Map.Entry<K, V> e = (Map.Entry<K, V>) o;
             return key == e.getKey() && value == e.getValue();
         }
 
@@ -860,44 +864,44 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         public String toString() {
             return key + "=>" + value;
         }
-		/*
-		public void prettyPrint() {
-			prettyPrint(0);
-		}
-
-		public void prettyPrint(int level) {
-			if (pred()) {
-				for (int i = 0; i < level; i++)
-					System.err.print("  ");
-				System.err.println("pred: " + left);
-			}
-			else if (left != null)
-				left.prettyPrint(level +1);
-			for (int i = 0; i < level; i++)
-				System.err.print("  ");
-			System.err.println(key + "=" + value + " (" + balance() + ")");
-			if (succ()) {
-				for (int i = 0; i < level; i++)
-					System.err.print("  ");
-				System.err.println("succ: " + right);
-			}
-			else if (right != null)
-				right.prettyPrint(level + 1);
-		}
-		*/
+        /*
+         * public void prettyPrint() {
+         * prettyPrint(0);
+         * }
+         * 
+         * public void prettyPrint(int level) {
+         * if (pred()) {
+         * for (int i = 0; i < level; i++)
+         * System.err.print("  ");
+         * System.err.println("pred: " + left);
+         * }
+         * else if (left != null)
+         * left.prettyPrint(level +1);
+         * for (int i = 0; i < level; i++)
+         * System.err.print("  ");
+         * System.err.println(key + "=" + value + " (" + balance() + ")");
+         * if (succ()) {
+         * for (int i = 0; i < level; i++)
+         * System.err.print("  ");
+         * System.err.println("succ: " + right);
+         * }
+         * else if (right != null)
+         * right.prettyPrint(level + 1);
+         * }
+         */
     }
 
     /*
-    public void prettyPrint() {
-        System.err.println("size: " + count);
-        if (tree != null) tree.prettyPrint();
-    }
-    */
+     * public void prettyPrint() {
+     * System.err.println("size: " + count);
+     * if (tree != null) tree.prettyPrint();
+     * }
+     */
     @SuppressWarnings("unchecked")
     @Override
     public boolean containsKey(final Object k) {
         if (k == null) return false;
-        return findKey((K)k) != null;
+        return findKey((K) k) != null;
     }
 
     @Override
@@ -913,7 +917,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
     @SuppressWarnings("unchecked")
     @Override
     public V get(final Object k) {
-        final Entry<K, V> e = findKey((K)k);
+        final Entry<K, V> e = findKey((K) k);
         return e == null ? defRetValue : e.value;
     }
 
@@ -936,6 +940,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      * This class can iterate in both directions on a threaded tree.
      */
     private class TreeIterator {
+
         /**
          * The entry that will be returned by the next call to {@link ListIterator#previous()} (or
          * {@code null} if no previous entry exists).
@@ -1011,10 +1016,12 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         }
 
         public void remove() {
-            synchronized (LockIdentityHashMap.this){
+            synchronized (LockIdentityHashMap.this) {
                 if (curr == null) throw new IllegalStateException();
-			/* If the last operation was a next(), we are removing an entry that preceeds
-				   the current index, and thus we must decrement it. */
+                /*
+                 * If the last operation was a next(), we are removing an entry that preceeds
+                 * the current index, and thus we must decrement it.
+                 */
                 if (curr == prev) index--;
                 next = prev = curr;
                 updatePrevious();
@@ -1044,8 +1051,8 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      * This class can iterate in both directions on a threaded tree.
      */
     private class EntryIterator extends TreeIterator implements ObjectListIterator<Object2ObjectMap.Entry<K, V>> {
-        EntryIterator() {
-        }
+
+        EntryIterator() {}
 
         EntryIterator(final K k) {
             super(k);
@@ -1077,7 +1084,9 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
     public ObjectSortedSet<Object2ObjectMap.Entry<K, V>> object2ObjectEntrySet() {
         if (entries == null) {
             AbstractObjectSortedSet<Object2ObjectMap.Entry<K, V>> entries1 = new AbstractObjectSortedSet<>() {
-                final Comparator<? super Object2ObjectMap.Entry<K, V>> comparator = (LockIdentityHashMap.this.actualComparator == null ? (Comparator<Object2ObjectMap.Entry<K, V>>) (x, y) -> (((Comparable<K>) (x.getKey())).compareTo(y.getKey())) : (Comparator<Object2ObjectMap.Entry<K, V>>) (x, y) -> LockIdentityHashMap.this.actualComparator.compare(x.getKey(), y.getKey()));
+
+                final Comparator<? super Object2ObjectMap.Entry<K, V>> comparator = (LockIdentityHashMap.this.actualComparator ==
+                        null ? (Comparator<Object2ObjectMap.Entry<K, V>>) (x, y) -> (((Comparable<K>) (x.getKey())).compareTo(y.getKey())) : (Comparator<Object2ObjectMap.Entry<K, V>>) (x, y) -> LockIdentityHashMap.this.actualComparator.compare(x.getKey(), y.getKey()));
 
                 @Override
                 public Comparator<? super Object2ObjectMap.Entry<K, V>> comparator() {
@@ -1137,7 +1146,8 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
                 }
 
                 @Override
-                public ObjectSortedSet<Object2ObjectMap.Entry<K, V>> subSet(Object2ObjectMap.Entry<K, V> from, Object2ObjectMap.Entry<K, V> to) {
+                public ObjectSortedSet<Object2ObjectMap.Entry<K, V>> subSet(Object2ObjectMap.Entry<K, V> from,
+                                                                            Object2ObjectMap.Entry<K, V> to) {
                     return subMap(from.getKey(), to.getKey()).object2ObjectEntrySet();
                 }
 
@@ -1166,8 +1176,8 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      * possibly their type-specific counterparts) so that they return keys instead of entries.
      */
     private final class KeyIterator extends TreeIterator implements ObjectListIterator<K> {
-        public KeyIterator() {
-        }
+
+        public KeyIterator() {}
 
         public KeyIterator(final K k) {
             super(k);
@@ -1186,6 +1196,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
 
     /** A keyset implementation using a more direct implementation for iterators. */
     private class KeySet extends AbstractObject2ObjectSortedMap<K, V>.KeySet {
+
         @Override
         public ObjectBidirectionalIterator<K> iterator() {
             return new KeyIterator();
@@ -1221,6 +1232,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      * possibly their type-specific counterparts) so that they return values instead of entries.
      */
     private final class ValueIterator extends TreeIterator implements ObjectListIterator<V> {
+
         @Override
         public V next() {
             return nextEntry().value;
@@ -1244,6 +1256,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
     @Override
     public ObjectCollection<V> values() {
         if (values == null) values = new AbstractObjectCollection<V>() {
+
             @Override
             public ObjectIterator<V> iterator() {
                 return new ValueIterator();
@@ -1298,6 +1311,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
      * computed on-the-fly.
      */
     private final class Submap extends AbstractObject2ObjectSortedMap<K, V> implements java.io.Serializable {
+
         private static final long serialVersionUID = -7046029254386353129L;
         /** The start of the submap range, unless {@link #bottom} is true. */
         K from;
@@ -1317,13 +1331,14 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         /**
          * Creates a new submap with given key range.
          *
-         * @param from the start of the submap range.
+         * @param from   the start of the submap range.
          * @param bottom if true, the first parameter is ignored and the range starts from -&infin;.
-         * @param to the end of the submap range.
-         * @param top if true, the third parameter is ignored and the range goes to &infin;.
+         * @param to     the end of the submap range.
+         * @param top    if true, the third parameter is ignored and the range goes to &infin;.
          */
         public Submap(final K from, final boolean bottom, final K to, final boolean top) {
-            if (!bottom && !top && compare(from, to) > 0) throw new IllegalArgumentException("Start key (" + from + ") is larger than end key (" + to + ")");
+            if (!bottom && !top && compare(from, to) > 0)
+                throw new IllegalArgumentException("Start key (" + from + ") is larger than end key (" + to + ")");
             this.from = from;
             this.bottom = bottom;
             this.to = to;
@@ -1355,6 +1370,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         @Override
         public ObjectSortedSet<Entry<K, V>> object2ObjectEntrySet() {
             if (entries == null) entries = new AbstractObjectSortedSet<Entry<K, V>>() {
+
                 @Override
                 public ObjectBidirectionalIterator<Entry<K, V>> iterator() {
                     return new LockIdentityHashMap.Submap.SubmapEntryIterator();
@@ -1374,8 +1390,8 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
                 @SuppressWarnings("unchecked")
                 public boolean contains(final Object o) {
                     if (!(o instanceof Map.Entry)) return false;
-                    final Map.Entry<?, ?> e = (Map.Entry<?, ?>)o;
-                    final var f = findKey(((K)e.getKey()));
+                    final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+                    final var f = findKey(((K) e.getKey()));
                     return f != null && in(f.key) && e == f;
                 }
 
@@ -1383,7 +1399,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
                 @SuppressWarnings("unchecked")
                 public boolean remove(final Object o) {
                     if (!(o instanceof Map.Entry)) return false;
-                    synchronized (LockIdentityHashMap.this){
+                    synchronized (LockIdentityHashMap.this) {
                         final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
                         final var f = findKey(((K) e.getKey()));
                         if (f != null && in(f.key)) LockIdentityHashMap.Submap.this.remove(f.key);
@@ -1437,6 +1453,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         }
 
         private class KeySet extends AbstractObject2ObjectSortedMap<K, V>.KeySet {
+
             @Override
             public ObjectBidirectionalIterator<K> iterator() {
                 return new LockIdentityHashMap.Submap.SubmapKeyIterator();
@@ -1457,6 +1474,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         @Override
         public ObjectCollection<V> values() {
             if (values == null) values = new AbstractObjectCollection<V>() {
+
                 @Override
                 public ObjectIterator<V> iterator() {
                     return new LockIdentityHashMap.Submap.SubmapValueIterator();
@@ -1484,7 +1502,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         @SuppressWarnings("unchecked")
         public boolean containsKey(final Object k) {
             if (k == null) return false;
-            return in((K)k) && this.containsKey(k);
+            return in((K) k) && this.containsKey(k);
         }
 
         @Override
@@ -1502,14 +1520,15 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         @SuppressWarnings("unchecked")
         public V get(final Object k) {
             final LockIdentityHashMap.Entry<K, V> e;
-            final K kk = (K)k;
+            final K kk = (K) k;
             return in(kk) && (e = findKey(kk)) != null ? e.value : this.defRetValue;
         }
 
         @Override
         public V put(final K k, final V v) {
             modified = false;
-            if (!in(k)) throw new IllegalArgumentException("Key (" + k + ") out of range [" + (bottom ? "-" : String.valueOf(from)) + ", " + (top ? "-" : String.valueOf(to)) + ")");
+            if (!in(k)) throw new IllegalArgumentException("Key (" + k + ") out of range [" +
+                    (bottom ? "-" : String.valueOf(from)) + ", " + (top ? "-" : String.valueOf(to)) + ")");
             final V oldValue = this.put(k, v);
             return modified ? this.defRetValue : oldValue;
         }
@@ -1518,7 +1537,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         @SuppressWarnings("unchecked")
         public V remove(final Object k) {
             modified = false;
-            if (!in((K)k)) return this.defRetValue;
+            if (!in((K) k)) return this.defRetValue;
             final V oldValue = this.remove(k);
             return modified ? oldValue : this.defRetValue;
         }
@@ -1633,6 +1652,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
          * {@code null}.
          */
         private class SubmapIterator extends TreeIterator {
+
             SubmapIterator() {
                 next = firstEntry();
             }
@@ -1665,9 +1685,10 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
             }
         }
 
-        private class SubmapEntryIterator extends LockIdentityHashMap.Submap.SubmapIterator implements ObjectListIterator<Entry<K, V>> {
-            SubmapEntryIterator() {
-            }
+        private class SubmapEntryIterator extends LockIdentityHashMap.Submap.SubmapIterator
+                                          implements ObjectListIterator<Entry<K, V>> {
+
+            SubmapEntryIterator() {}
 
             SubmapEntryIterator(final K k) {
                 super(k);
@@ -1693,7 +1714,9 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
          * methods (and possibly their type-specific counterparts) so that they return keys instead of
          * entries.
          */
-        private final class SubmapKeyIterator extends LockIdentityHashMap.Submap.SubmapIterator implements ObjectListIterator<K> {
+        private final class SubmapKeyIterator extends LockIdentityHashMap.Submap.SubmapIterator
+                                              implements ObjectListIterator<K> {
+
             public SubmapKeyIterator() {
                 super();
             }
@@ -1722,7 +1745,9 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
          * {@link ListIterator#next()}/{@link ListIterator#previous()} methods (and
          * possibly their type-specific counterparts) so that they return values instead of entries.
          */
-        private final class SubmapValueIterator extends LockIdentityHashMap.Submap.SubmapIterator implements ObjectListIterator<V> {
+        private final class SubmapValueIterator extends LockIdentityHashMap.Submap.SubmapIterator
+                                                implements ObjectListIterator<V> {
+
             @Override
             public V next() {
                 return (V) nextEntry().value;
@@ -1749,7 +1774,7 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
     public synchronized LockIdentityHashMap<K, V> clone() {
         LockIdentityHashMap<K, V> c;
         try {
-            c = (LockIdentityHashMap<K, V>)super.clone();
+            c = (LockIdentityHashMap<K, V>) super.clone();
         } catch (CloneNotSupportedException cantHappen) {
             throw new InternalError();
         }
@@ -1815,24 +1840,27 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
     /**
      * Reads the given number of entries from the input stream, returning the corresponding tree.
      *
-     * @param s the input stream.
-     * @param n the (positive) number of entries to read.
+     * @param s    the input stream.
+     * @param n    the (positive) number of entries to read.
      * @param pred the entry containing the key that preceeds the first key in the tree.
      * @param succ the entry containing the key that follows the last key in the tree.
      */
     @SuppressWarnings("unchecked")
-    private Entry<K, V> readTree(final java.io.ObjectInputStream s, final int n, final Entry<K, V> pred, final Entry<K, V> succ) throws java.io.IOException, ClassNotFoundException {
+    private Entry<K, V> readTree(final java.io.ObjectInputStream s, final int n, final Entry<K, V> pred,
+                                 final Entry<K, V> succ) throws java.io.IOException, ClassNotFoundException {
         if (n == 1) {
-            final Entry<K, V> top = new Entry<>((K)s.readObject(), (V)s.readObject());
+            final Entry<K, V> top = new Entry<>((K) s.readObject(), (V) s.readObject());
             top.pred(pred);
             top.succ(succ);
             return top;
         }
         if (n == 2) {
-            /* We handle separately this case so that recursion will
-             *always* be on nonempty subtrees. */
-            final Entry<K, V> top = new Entry<>((K)s.readObject(), (V)s.readObject());
-            top.right(new Entry<>((K)s.readObject(), (V)s.readObject()));
+            /*
+             * We handle separately this case so that recursion will
+             * always* be on nonempty subtrees.
+             */
+            final Entry<K, V> top = new Entry<>((K) s.readObject(), (V) s.readObject());
+            top.right(new Entry<>((K) s.readObject(), (V) s.readObject()));
             top.right.pred(top);
             top.balance(1);
             top.pred(pred);
@@ -1843,8 +1871,8 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         final int rightN = n / 2, leftN = n - rightN - 1;
         final Entry<K, V> top = new Entry<>();
         top.left(readTree(s, leftN, pred, top));
-        top.key = (K)s.readObject();
-        top.value = (V)s.readObject();
+        top.key = (K) s.readObject();
+        top.value = (V) s.readObject();
         top.right(readTree(s, rightN, top, succ));
         if (n == (n & -n)) top.balance(1); // Quick test for determining whether n is a power of 2.
         return top;
@@ -1852,8 +1880,10 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
 
     private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
         s.defaultReadObject();
-		/* The storedComparator is now correctly set, but we must restore
-		   on-the-fly the actualComparator. */
+        /*
+         * The storedComparator is now correctly set, but we must restore
+         * on-the-fly the actualComparator.
+         */
         setActualComparator();
         allocatePaths();
         if (count != 0) {
@@ -1867,12 +1897,13 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
             lastEntry = e;
         }
     }
+
     public static class BasicEntry<K, V> implements Object2ObjectMap.Entry<K, V> {
+
         protected K key;
         protected V value;
 
-        public BasicEntry() {
-        }
+        public BasicEntry() {}
 
         public BasicEntry(final K key, final V value) {
             this.key = (key);
@@ -1899,10 +1930,10 @@ public class LockIdentityHashMap<K, V> extends AbstractObject2ObjectSortedMap<K,
         public boolean equals(final Object o) {
             if (!(o instanceof Map.Entry)) return false;
             if (o instanceof Object2ObjectMap.Entry) {
-                final Object2ObjectMap.Entry<K, V> e = (Object2ObjectMap.Entry<K, V>)o;
+                final Object2ObjectMap.Entry<K, V> e = (Object2ObjectMap.Entry<K, V>) o;
                 return key == e.getKey() && value == e.getValue();
             }
-            final var e = (Map.Entry<?, ?>)o;
+            final var e = (Map.Entry<?, ?>) o;
             final Object key = e.getKey();
             final Object value = e.getValue();
             return this.key == (key) && this.value == (value);

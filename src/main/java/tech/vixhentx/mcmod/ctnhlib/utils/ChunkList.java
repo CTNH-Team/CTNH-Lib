@@ -1,17 +1,20 @@
 package tech.vixhentx.mcmod.ctnhlib.utils;
 
 import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
-import java.util.function.UnaryOperator;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.UnaryOperator;
 
 public class ChunkList<T> implements List<T> {
+
     private static final int DEFAULT_CHUNK_SIZE = 1024;
     private int size;
     private final int chunkCapacity;
     private TreapNode root;
 
     private static class TreapNode {
+
         Object[] chunk;
         int chunkSize;
         int priority;
@@ -32,7 +35,9 @@ public class ChunkList<T> implements List<T> {
         }
     }
 
-    public ChunkList() { this(DEFAULT_CHUNK_SIZE); }
+    public ChunkList() {
+        this(DEFAULT_CHUNK_SIZE);
+    }
 
     public ChunkList(int chunkCapacity) {
         this.chunkCapacity = chunkCapacity;
@@ -42,7 +47,7 @@ public class ChunkList<T> implements List<T> {
 
     // ==================== Treap 核心操作 ====================
     private TreapNode[] split(TreapNode node, int k) {
-        if (node == null) return new TreapNode[]{null, null};
+        if (node == null) return new TreapNode[] { null, null };
         int leftSize = (node.left != null) ? node.left.subtreeSize : 0;
         if (k <= leftSize) {
             TreapNode[] res = split(node.left, k);
@@ -64,7 +69,7 @@ public class ChunkList<T> implements List<T> {
             rightNode.right = node.right;
             leftNode.updateSize();
             rightNode.updateSize();
-            return new TreapNode[]{leftNode, rightNode};
+            return new TreapNode[] { leftNode, rightNode };
         }
         TreapNode[] res = split(node.right, k - leftSize - node.chunkSize);
         node.right = res[0];
@@ -105,19 +110,27 @@ public class ChunkList<T> implements List<T> {
     }
 
     @Override
-    public int size() { return size; }
+    public int size() {
+        return size;
+    }
 
     @Override
-    public boolean isEmpty() { return size == 0; }
+    public boolean isEmpty() {
+        return size == 0;
+    }
 
     @Override
     public @NotNull Iterator<T> iterator() {
         return new Iterator<>() {
+
             private final Deque<TreapNode> stack = new ArrayDeque<>();
             private int posInChunk;
             private TreapNode current;
 
-            { pushLeft(root); advanceToNextChunk(); }
+            {
+                pushLeft(root);
+                advanceToNextChunk();
+            }
 
             private void pushLeft(TreapNode node) {
                 while (node != null) {
@@ -453,6 +466,7 @@ public class ChunkList<T> implements List<T> {
     }
 
     private class ChunkListIterator implements ListIterator<T> {
+
         private int cursor;
         private int lastRet = -1;
 
@@ -526,6 +540,7 @@ public class ChunkList<T> implements List<T> {
     }
 
     private static class SubList<T> extends AbstractList<T> {
+
         private final ChunkList<T> parent;
         private final int from;
         private int size;

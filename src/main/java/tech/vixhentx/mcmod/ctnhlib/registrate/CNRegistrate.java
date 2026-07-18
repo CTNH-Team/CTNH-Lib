@@ -14,7 +14,6 @@ import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeSerializer;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
-import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
@@ -159,7 +158,7 @@ public class CNRegistrate extends GTRegistrate {
     }
 
     public CTNHRecipeType recipeType(String name, String group, RecipeType<?>... proxyRecipes) {
-        return recipeType(GTCEu.id(name), group, proxyRecipes);
+        return recipeType(new ResourceLocation(getModid(), name), group, proxyRecipes);
     }
 
     public CTNHRecipeType recipeType(ResourceLocation resourceLocation, String group, RecipeType<?>... proxyRecipes) {
