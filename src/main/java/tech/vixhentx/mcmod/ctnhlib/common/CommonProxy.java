@@ -9,6 +9,7 @@ import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
@@ -35,7 +36,11 @@ public class CommonProxy {
 
     public static void init() {
         GTProvidersRegistrar.init();
-        CTNHLibNetworking.init();
+    }
+
+    @SubscribeEvent
+    public void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(CTNHLibNetworking::init);
     }
 
     @SubscribeEvent
