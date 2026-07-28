@@ -53,6 +53,7 @@ import static com.gregtechceu.gtceu.api.data.tag.TagPrefix.Conditions.hasOreProp
 import static tech.vixhentx.mcmod.ctnhlib.registrate.data.ProviderTypes.CNLANG;
 import static tech.vixhentx.mcmod.ctnhlib.utils.EnvUtils.isDataGen;
 
+@SuppressWarnings("removal")
 public class CNRegistrate extends GTRegistrate {
 
     /**
