@@ -1,6 +1,29 @@
 package tech.vixhentx.mcmod.ctnhlib.api;
 
+import net.minecraft.world.item.DyeColor;
+
+import java.util.Map;
+
 public class CTNHValues {
+
+    public static final Map<DyeColor, String> DYE_COLOR_CN = Map.ofEntries(
+            Map.entry(DyeColor.WHITE, "白色"),
+            Map.entry(DyeColor.ORANGE, "橙色"),
+            Map.entry(DyeColor.MAGENTA, "品红色"),
+            Map.entry(DyeColor.LIGHT_BLUE, "淡蓝色"),
+            Map.entry(DyeColor.YELLOW, "黄色"),
+            Map.entry(DyeColor.LIME, "黄绿色"),
+            Map.entry(DyeColor.PINK, "粉红色"),
+            Map.entry(DyeColor.GRAY, "灰色"),
+            Map.entry(DyeColor.LIGHT_GRAY, "淡灰色"),
+            Map.entry(DyeColor.CYAN, "青色"),
+            Map.entry(DyeColor.PURPLE, "紫色"),
+            Map.entry(DyeColor.BLUE, "蓝色"),
+            Map.entry(DyeColor.BROWN, "棕色"),
+            Map.entry(DyeColor.GREEN, "绿色"),
+            Map.entry(DyeColor.RED, "红色"),
+            Map.entry(DyeColor.BLACK, "黑色"));
+
     public static final String[] VNC = new String[] {
             "超低压",
             "低压",
