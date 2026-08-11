@@ -24,8 +24,8 @@ public final class GTProvidersRegistrar {
         JadePriorityManager.registerBlockData(new WorkLogicMachineProvider(), BlockEntity.class, 1200, "workable_data");
         JadePriorityManager.registerBlockData(new ControllableBlockProvider(), BlockEntity.class, 1300,
                 "controllable_data");
-         JadePriorityManager.registerBlockData(new RecipeLogicProvider(), BlockEntity.class, 1400,
-         "recipe_logic_data");
+        JadePriorityManager.registerBlockData(new RecipeLogicProvider(), BlockEntity.class, 1400,
+                "recipe_logic_data");
         JadePriorityManager.registerBlockData(new ParallelProvider(), BlockEntity.class, 1500, "parallel_data");
         JadePriorityManager.registerBlockData(new RecipeOutputProvider(), BlockEntity.class, 1600,
                 "recipe_output_data");
@@ -61,8 +61,8 @@ public final class GTProvidersRegistrar {
                 "workable_component");
         JadePriorityManager.registerBlockComponent(new ControllableBlockProvider(), Block.class, 1300,
                 "controllable_component");
-        // JadePriorityManager.registerBlockComponent(new RecipeLogicProvider(), Block.class, 1400,
-        // "recipe_logic_component");
+        JadePriorityManager.registerBlockComponent(new RecipeLogicProvider(), Block.class, 1400,
+                "recipe_logic_component");
         JadePriorityManager.registerBlockComponent(new ParallelProvider(), Block.class, 1500, "parallel_component");
         JadePriorityManager.registerBlockComponent(new RecipeOutputProvider(), Block.class, 1600,
                 "recipe_output_component");
