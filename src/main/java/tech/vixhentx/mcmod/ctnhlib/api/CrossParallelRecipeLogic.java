@@ -42,7 +42,7 @@ public class CrossParallelRecipeLogic extends RecipeLogic {
                 merged++;
             }
 
-            if (merged == 0) {
+            if (merged == 0 && !group.isEmpty()) {
                 for (var logic : machine.getRecipeType().getCustomRecipeLogicRunners()) {
                     var recipe = logic.createCustomRecipe(group);
                     if (recipe != null && tyrMergeMatchedRecipe(recipe, group)) {
