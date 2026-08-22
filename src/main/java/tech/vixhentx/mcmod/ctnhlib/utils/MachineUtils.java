@@ -28,11 +28,11 @@ import java.util.function.Consumer;
 public class MachineUtils {
 
     public static boolean canInputItems(IRecipeLogicMachine machine, ItemStack... items) {
-        return canExecuteRecipe(GTRecipeBuilder.ofRaw().inputItems(items).buildRuntime(), machine);
+        return canExecuteRecipe(GTRecipeBuilder.ofRaw().inputItems(nonEmpty(items)).buildRuntime(), machine);
     }
 
     public static boolean canInputItems(RecipeHandlerGroup group, ItemStack... items) {
-        return canExecuteRecipe(GTRecipeBuilder.ofRaw().inputItems(items).buildRuntime(), group);
+        return canExecuteRecipe(GTRecipeBuilder.ofRaw().inputItems(nonEmpty(items)).buildRuntime(), group);
     }
 
     public static boolean canInputItems(IRecipeLogicMachine machine, Item... items) {
@@ -44,11 +44,11 @@ public class MachineUtils {
     }
 
     public static boolean canOutputItems(IRecipeLogicMachine machine, ItemStack... items) {
-        return canExecuteRecipe(GTRecipeBuilder.ofRaw().outputItems(items).buildRuntime(), machine);
+        return canExecuteRecipe(GTRecipeBuilder.ofRaw().outputItems(nonEmpty(items)).buildRuntime(), machine);
     }
 
     public static boolean canOutputItems(RecipeHandlerGroup group, ItemStack... items) {
-        return canExecuteRecipe(GTRecipeBuilder.ofRaw().outputItems(items).buildRuntime(), group);
+        return canExecuteRecipe(GTRecipeBuilder.ofRaw().outputItems(nonEmpty(items)).buildRuntime(), group);
     }
 
     public static boolean canOutputItems(IRecipeLogicMachine machine, Item... items) {
@@ -60,11 +60,11 @@ public class MachineUtils {
     }
 
     public static boolean inputItems(IRecipeLogicMachine machine, ItemStack... items) {
-        return executeRecipe(GTRecipeBuilder.ofRaw().inputItems(items).buildRuntime(), machine, IO.IN);
+        return executeRecipe(GTRecipeBuilder.ofRaw().inputItems(nonEmpty(items)).buildRuntime(), machine, IO.IN);
     }
 
     public static boolean inputItems(RecipeHandlerGroup group, ItemStack... items) {
-        return executeRecipe(GTRecipeBuilder.ofRaw().inputItems(items).buildRuntime(), group, IO.IN);
+        return executeRecipe(GTRecipeBuilder.ofRaw().inputItems(nonEmpty(items)).buildRuntime(), group, IO.IN);
     }
 
     public static boolean inputItems(IRecipeLogicMachine machine, Item... items) {
@@ -76,11 +76,11 @@ public class MachineUtils {
     }
 
     public static boolean outputItems(IRecipeLogicMachine machine, ItemStack... items) {
-        return executeRecipe(GTRecipeBuilder.ofRaw().outputItems(items).buildRuntime(), machine, IO.OUT);
+        return executeRecipe(GTRecipeBuilder.ofRaw().outputItems(nonEmpty(items)).buildRuntime(), machine, IO.OUT);
     }
 
     public static boolean outputItems(RecipeHandlerGroup group, ItemStack... items) {
-        return executeRecipe(GTRecipeBuilder.ofRaw().outputItems(items).buildRuntime(), group, IO.OUT);
+        return executeRecipe(GTRecipeBuilder.ofRaw().outputItems(nonEmpty(items)).buildRuntime(), group, IO.OUT);
     }
 
     public static boolean outputItems(IRecipeLogicMachine machine, Item... items) {
@@ -245,6 +245,12 @@ public class MachineUtils {
 
     private static FluidStack[] toFluidStacks(int amount, Fluid... fluids) {
         return Arrays.stream(fluids).map(fluid -> new FluidStack(fluid, amount)).toArray(FluidStack[]::new);
+    }
+
+    private static ItemStack[] nonEmpty(ItemStack... items) {
+        return Arrays.stream(items)
+                .filter(stack -> stack != null && !stack.isEmpty())
+                .toArray(ItemStack[]::new);
     }
 
     private static boolean canExecuteRecipe(GTRecipe recipe, RecipeHandlerGroup group) {
