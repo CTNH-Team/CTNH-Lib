@@ -5,18 +5,29 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -42,6 +53,9 @@ public final class CTNHCommands {
     private static final ChatFormatting NBT_COLOR = ChatFormatting.LIGHT_PURPLE;
     private static final ChatFormatting TAG_COLOR = ChatFormatting.DARK_GREEN;
     private static final ChatFormatting MOD_COLOR = ChatFormatting.DARK_AQUA;
+
+    private static final TagKey<Block> ORE_BLOCKS_TAG = TagKey.create(Registries.BLOCK,
+            new ResourceLocation("forge", "ores"));
 
     /** 根据请求的检查类型，建议已知的物品/方块/流体标签 ID。 */
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_TAGS = (ctx, builder) -> {
@@ -77,7 +91,11 @@ public final class CTNHCommands {
                         .then(literal("fluid")
                                 .then(argument("tag", ResourceLocationArgument.id())
                                         .suggests(SUGGEST_TAGS)
-                                        .executes(ctx -> executeShowTag(ctx, InspectType.FLUID)))));
+                                        .executes(ctx -> executeShowTag(ctx, InspectType.FLUID)))))
+                .then(literal("showores")
+                        .requires(src -> src.hasPermission(2))
+                        .then(argument("radius", IntegerArgumentType.integer(1, 4))
+                                .executes(CTNHCommands::executeShowOres)));
         dispatcher.register(root);
     }
 
@@ -246,6 +264,70 @@ public final class CTNHCommands {
             source.sendSuccess(() -> line, false);
         }
         return members.size();
+    }
+
+    // ---- /ctnh showores 矿脉观察（清除区块柱内除矿石外的方块） ----------------------
+
+    private static int executeShowOres(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(CTNHCommandChatHelper.error(
+                    Component.translatable("command.ctnhlib.error.player_only")));
+            return 0;
+        }
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        ServerLevel level = source.getLevel();
+        ChunkPos center = new ChunkPos(player.blockPosition());
+        long startNanos = System.nanoTime();
+        int cleared = 0;
+        int kept = 0;
+        int skippedChunks = 0;
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                int chunkX = center.x + dx;
+                int chunkZ = center.z + dz;
+                if (!level.hasChunk(chunkX, chunkZ)) {
+                    skippedChunks++;
+                    continue;
+                }
+                LevelChunk chunk = level.getChunk(chunkX, chunkZ);
+                LevelChunkSection[] sections = chunk.getSections();
+                for (int s = 0; s < sections.length; s++) {
+                    LevelChunkSection section = sections[s];
+                    if (section.hasOnlyAir()) {
+                        continue;
+                    }
+                    int baseY = (level.getMinSection() + s) * 16;
+                    for (int lx = 0; lx < 16; lx++) {
+                        for (int lz = 0; lz < 16; lz++) {
+                            for (int ly = 0; ly < 16; ly++) {
+                                BlockState state = section.getBlockState(lx, ly, lz);
+                                if (state.isAir()) {
+                                    continue;
+                                }
+                                if (state.is(ORE_BLOCKS_TAG)) {
+                                    kept++;
+                                    continue;
+                                }
+                                cursor.set((chunkX << 4) + lx, baseY + ly, (chunkZ << 4) + lz);
+                                if (level.setBlock(cursor, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS)) {
+                                    cleared++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L;
+        int clearedCount = cleared;
+        int keptCount = kept;
+        int skippedCount = skippedChunks;
+        source.sendSuccess(() -> Component.translatable("command.ctnhlib.showores.done",
+                clearedCount, keptCount, skippedCount, elapsedMs), false);
+        return 1;
     }
 
     // ---- 辅助方法 -------------------------------------------------------------------
