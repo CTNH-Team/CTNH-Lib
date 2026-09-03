@@ -45,6 +45,7 @@ import static net.minecraft.commands.Commands.literal;
  * Brigadier 注册入口，用于 {@code /ctnh} 检查命令。
  * 权限等级为 0，因此所有玩家均可执行。
  */
+@SuppressWarnings("removal")
 public final class CTNHCommands {
 
     private static final ChatFormatting NAME_COLOR = ChatFormatting.AQUA;
