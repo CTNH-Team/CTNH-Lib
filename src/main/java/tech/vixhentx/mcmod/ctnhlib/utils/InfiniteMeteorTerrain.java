@@ -1,4 +1,5 @@
 package tech.vixhentx.mcmod.ctnhlib.utils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class InfiniteMeteorTerrain {
      * 输入种子、位置、原始材质剖面、材质偏移参数，输出高度偏移和撞击后材质剖面。
      *
      * @param seed       世界种子
-     * @param x, z       水平坐标（z 对应原代码的 y）
+     * @param x,         z 水平坐标（z 对应原代码的 y）
      * @param type       输入：原材质剖面（索引 0 为地表 -> 向下），输出：撞击后材质剖面（索引 0 为新地表）
      * @param typeOffset 0.0~1.0，控制玻璃/砂砾生成的物理倾向（高值=高硅沙层，低值=硬岩）
      * @param offset     输出：高度偏移（正=升高，负=降低）
@@ -82,7 +83,7 @@ public class InfiniteMeteorTerrain {
         double cz = cellZ * CELL_SIZE + oz;
 
         double radius = 5.0 + rand01(h, 0xC2B2AE35L) * 15.0;   // 5~20
-        double depth  = radius * (0.15 + rand01(h, 0x27D4EB2FL) * 0.25); // 深度约为半径的 15%~40%
+        double depth = radius * (0.15 + rand01(h, 0x27D4EB2FL) * 0.25); // 深度约为半径的 15%~40%
 
         return new ImpactEvent(cx, cz, radius, depth);
     }
@@ -328,7 +329,7 @@ public class InfiniteMeteorTerrain {
         double amp = 1.0;
         double freq = 1.0;
         for (int o = 0; o < 3; o++) {
-            int segments = (int)(12 * freq);
+            int segments = (int) (12 * freq);
             double aStep = angle * segments / (2.0 * Math.PI);
             int aIdx = (int) Math.floor(aStep);
             double aFrac = aStep - aIdx;
@@ -346,10 +347,15 @@ public class InfiniteMeteorTerrain {
 
     // ================= 内部数据结构 =================
     private static class ImpactEvent {
+
         final double cx, cz;
         final double radius, depth;
+
         ImpactEvent(double cx, double cz, double radius, double depth) {
-            this.cx = cx; this.cz = cz; this.radius = radius; this.depth = depth;
+            this.cx = cx;
+            this.cz = cz;
+            this.radius = radius;
+            this.depth = depth;
         }
     }
 }

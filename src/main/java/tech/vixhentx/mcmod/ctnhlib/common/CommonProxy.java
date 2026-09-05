@@ -15,7 +15,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import tech.vixhentx.mcmod.ctnhlib.command.CTNHCommands;
 import tech.vixhentx.mcmod.ctnhlib.data.DataFilterPack;
-import tech.vixhentx.mcmod.ctnhlib.jade.GTProvidersRegistrar;
 import tech.vixhentx.mcmod.ctnhlib.registrate.CTNHLibNetworking;
 
 import static com.gregtechceu.gtceu.common.registry.GTRegistration.REGISTRATE;
@@ -35,7 +34,7 @@ public class CommonProxy {
     }
 
     public static void init() {
-        GTProvidersRegistrar.init();
+
     }
 
     @SubscribeEvent

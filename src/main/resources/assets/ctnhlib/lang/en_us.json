@@ -28,6 +28,7 @@
     "command.ctnhlib.hand.fluid_nbt": "Fluid NBT",
     "command.ctnhlib.hand.fluid_tags": "Fluid Tags",
     "command.ctnhlib.hand.no_fluid": "No fluid contained.",
+    "command.ctnhlib.showores.done": "Cleared %1$s blocks (%2$s ore blocks kept, %3$s unloaded chunks skipped) in %4$s ms",
     "command.ctnhlib.showtag.header": "Tag %1$s in registry %2$s:",
     "command.ctnhlib.showtag.count": "Members: %1$s",
     "command.ctnhlib.showtag.member": "- %1$s (%2$s)",

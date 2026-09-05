@@ -28,6 +28,7 @@
     "command.ctnhlib.hand.fluid_nbt": "流体NBT",
     "command.ctnhlib.hand.fluid_tags": "流体标签",
     "command.ctnhlib.hand.no_fluid": "无内含流体。",
+    "command.ctnhlib.showores.done": "已清除 %1$s 个方块（保留 %2$s 个矿石方块，跳过 %3$s 个未加载区块），耗时 %4$s 毫秒",
     "command.ctnhlib.showtag.header": "注册表 %2$s 中的标签 %1$s：",
     "command.ctnhlib.showtag.count": "成员数：%1$s",
     "command.ctnhlib.showtag.member": "- %1$s (%2$s)",
