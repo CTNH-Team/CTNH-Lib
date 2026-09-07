@@ -33,9 +33,7 @@ public class CommonProxy {
                 .register();
     }
 
-    public static void init() {
-
-    }
+    public static void init() {}
 
     @SubscribeEvent
     public void commonSetup(FMLCommonSetupEvent event) {
