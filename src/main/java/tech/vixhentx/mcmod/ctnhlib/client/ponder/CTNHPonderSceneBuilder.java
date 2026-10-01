@@ -7,6 +7,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUI;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiPlacement;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.Lang;
 
 public class CTNHPonderSceneBuilder extends CreateSceneBuilder {
@@ -60,6 +62,14 @@ public class CTNHPonderSceneBuilder extends CreateSceneBuilder {
         this.idle(time);
         this.rotateCameraY(90);
         this.idle(time);
+    }
+
+    /**
+     * 摆放一个可复用的机器界面，例如
+     * {@code scene.showUI(MY_MACHINE_UI).at(anchor).forMachine(pos).slot(0).withItem(stack).show(200)}。
+     */
+    public MachineUiPlacement showUI(MachineUI ui) {
+        return ui.in(this);
     }
 
     public CreateSceneBuilder getSceneBuilder() {

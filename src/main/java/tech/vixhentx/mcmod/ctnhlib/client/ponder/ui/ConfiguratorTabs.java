@@ -1,0 +1,172 @@
+// SPDX-License-Identifier: GPL-3.0
+// Copyright (C) 2026 mmyddd
+package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
+
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
+import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfigurator;
+import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator;
+
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+
+import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 在 GT 的配置器面板里认页签：电源开关、自动输出、电路、总线隔离都是这一列里的按钮。
+ *
+ * <p>
+ * 页签的 {@code configurator} 字段是 protected，只能反射读一次并缓存；认哪一类看它的 tooltip
+ * （GT 自己的 lang key：{@code behaviour.soft_hammer.*}、{@code gtceu.gui.*_auto_output.*}、
+ * {@code gtceu.multiblock.universal.distinct}），电路那一类直接看类型。
+ */
+final class ConfiguratorTabs {
+
+    /** 电源开关的 tooltip key 片段。 */
+    private static final String POWER = "soft_hammer";
+    /** 物品/流体自动输出的 tooltip key 片段。 */
+    private static final String AUTO_OUTPUT = "auto_output";
+    /** 总线隔离（Distinct）的 tooltip key 片段。 */
+    private static final String DISTINCT = "distinct";
+
+    private static Field configuratorField;
+    private static boolean fieldMissing;
+    @Nullable
+    private static Field buttonField;
+    private static boolean buttonFieldMissing;
+
+    private ConfiguratorTabs() {}
+
+    /**
+     * 面板里对得上这一类的页签控件（就是那一列按钮）。面板没画、机器没这类控件、或者拿不到
+     * 反射字段时返回空表，交给调用方报错。
+     */
+    static List<Widget> buttons(@Nullable ConfiguratorPanel panel, MachineUiPlacement.Part part) {
+        if (panel == null || !panel.isVisible()) {
+            return List.of();
+        }
+        List<Widget> buttons = new ArrayList<>();
+        for (Object tab : panel.getTabs()) {
+            if (!(tab instanceof Widget widget)) {
+                continue;
+            }
+            IFancyConfigurator configurator = configuratorOf(tab);
+            if (configurator != null && matches(configurator, part)) {
+                buttons.add(widget);
+            }
+        }
+        return buttons;
+    }
+
+    /**
+     * 手动同步配置器自己的缓存。
+     *
+     * <p>
+     * 开关（IFancyConfiguratorButton.Toggle）把「按下状态」缓存在自己的字段里：点击时用缓存值算新状态、
+     * 图标也读缓存值。那个缓存平时由 LDLib 的容器同步（detectAndSendChange）刷新，而 ponder 里没有容器，
+     * 于是它停在初始值 —— 点击看似没反应、图标也不变。这里调用 GT 自己的 detectAndSendChange，
+     * 发送方给个空实现，只取它「把 supplier 的值写进缓存」的那一半。
+     */
+    static void syncConfigurators(@Nullable ConfiguratorPanel panel) {
+        if (panel == null) {
+            return;
+        }
+        for (ConfiguratorPanel.Tab tab : panel.getTabs()) {
+            IFancyConfigurator configurator = configuratorOf(tab);
+            if (configurator == null) {
+                continue;
+            }
+            try {
+                configurator.detectAndSendChange((id, writer) -> {});
+            } catch (Throwable ignored) {
+                // 个别配置器可能挑环境，跳过即可
+            }
+        }
+    }
+
+    /**
+     * 页签里那个按钮：GT 把 onClick 挂在它的 onPressCallback 上（ConfiguratorPanel.java:183），
+     * 直接点它才是原版路径。只调 Tab.mouseClicked 的话，页签矩形命中就会返回 true（该方法末尾是
+     * {@code super.mouseClicked(...) || isMouseOverElement(...)}），按钮却不一定被触发。
+     */
+    static @Nullable Widget buttonOf(ConfiguratorPanel.Tab tab) {
+        Field field = buttonField();
+        if (field == null) {
+            return null;
+        }
+        try {
+            return (Widget) field.get(tab);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static @Nullable Field buttonField() {
+        if (buttonField == null && !buttonFieldMissing) {
+            try {
+                Field field = ConfiguratorPanel.Tab.class.getDeclaredField("button");
+                field.setAccessible(true);
+                buttonField = field;
+            } catch (Throwable t) {
+                buttonFieldMissing = true;
+                CTNHLib.LOGGER.error("CTNHLib: cannot read the button of a " +
+                        "configurator tab; switches will not be clickable", t);
+            }
+        }
+        return buttonField;
+    }
+
+    private static boolean matches(IFancyConfigurator configurator, MachineUiPlacement.Part part) {
+        return switch (part) {
+            case CIRCUIT_BUTTON -> configurator instanceof CircuitFancyConfigurator;
+            case POWER -> tooltipContains(configurator, POWER);
+            case AUTO_OUTPUT -> tooltipContains(configurator, AUTO_OUTPUT);
+            case DISTINCT -> tooltipContains(configurator, DISTINCT);
+            default -> false;
+        };
+    }
+
+    private static boolean tooltipContains(IFancyConfigurator configurator, String needle) {
+        for (Component tooltip : configurator.getTooltips()) {
+            if (tooltip.getContents() instanceof TranslatableContents contents &&
+                    contents.getKey().contains(needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static @Nullable IFancyConfigurator configuratorOf(Object tab) {
+        Field field = configuratorField();
+        if (field == null) {
+            return null;
+        }
+        try {
+            return (IFancyConfigurator) field.get(tab);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static @Nullable Field configuratorField() {
+        if (configuratorField == null && !fieldMissing) {
+            try {
+                Field field = Class.forName("com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel$Tab")
+                        .getDeclaredField("configurator");
+                field.setAccessible(true);
+                configuratorField = field;
+            } catch (Throwable t) {
+                fieldMissing = true;
+                CTNHLib.LOGGER.error("GTPonder: cannot read the configurator of a GT configurator tab; " +
+                        "outlining the power / auto-output / circuit / distinct buttons will be skipped", t);
+            }
+        }
+        return configuratorField;
+    }
+}

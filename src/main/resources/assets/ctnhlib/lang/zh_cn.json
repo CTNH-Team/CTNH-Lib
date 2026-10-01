@@ -32,5 +32,8 @@
     "command.ctnhlib.showtag.header": "注册表 %2$s 中的标签 %1$s：",
     "command.ctnhlib.showtag.count": "成员数：%1$s",
     "command.ctnhlib.showtag.member": "- %1$s (%2$s)",
-    "command.ctnhlib.showtag.fluid_member": "- %1$s (%2$s)"
+    "command.ctnhlib.showtag.fluid_member": "- %1$s (%2$s)",
+    "ctnhlib.tooltip.slot_index": "槽位 %s",
+    "ctnhlib.tooltip.tank_index": "储罐 %s",
+    "ctnhlib.ponder.ui.ui_details": "查看 UI 详情"
 }

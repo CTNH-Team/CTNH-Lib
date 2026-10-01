@@ -32,5 +32,8 @@
     "command.ctnhlib.showtag.header": "Tag %1$s in registry %2$s:",
     "command.ctnhlib.showtag.count": "Members: %1$s",
     "command.ctnhlib.showtag.member": "- %1$s (%2$s)",
-    "command.ctnhlib.showtag.fluid_member": "- %1$s (%2$s)"
+    "command.ctnhlib.showtag.fluid_member": "- %1$s (%2$s)",
+    "ctnhlib.tooltip.slot_index": "slot %s",
+    "ctnhlib.tooltip.tank_index": "tank %s",
+    "ctnhlib.ponder.ui.ui_details": "Show UI details"
 }
