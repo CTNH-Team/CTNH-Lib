@@ -11,6 +11,7 @@
     "TMRVMixin"
   ],
   "client": [
+    "PonderUIMixin"
   ],
   "injectors": {
     "defaultRequire": 1

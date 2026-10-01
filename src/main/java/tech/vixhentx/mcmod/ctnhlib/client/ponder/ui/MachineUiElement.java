@@ -1,266 +1,230 @@
+// SPDX-License-Identifier: GPL-3.0
+// Copyright (C) 2026 mmyddd
+
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
-import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget;
-import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.feature.IUIMachine;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.machine.MachineEdits;
 
-import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
-import com.lowdragmc.lowdraglib.gui.widget.SlotWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
-import com.lowdragmc.lowdraglib.gui.widget.custom.PlayerInventoryWidget;
 
-import net.createmod.catnip.gui.element.GuiGameElement;
+import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.foundation.PonderScene;
 import net.createmod.ponder.foundation.element.AnimatedOverlayElementBase;
 import net.createmod.ponder.foundation.ui.PonderUI;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 把机器真实的 {@link ModularUI} 画进思索场景的叠加层元素：按锚点投影定位、以面板左下角为原点，
- * 并按时间线把物品写进指定槽位。
+ * 把机器真实的 UI 画进思索场景的叠加层元素：面板画成 Ponder 的 speech box，指针尖指向场景里的锚点，
+ * 按时间线把物品与流体写进指定槽位、储罐，需要时还会给面板里的控件套红框。
  *
  * <p>
  * 机器实例在渲染/运行期按坐标解析，不跨重播持有；场景重播（{@code PonderScene#begin()} 会重建
  * BlockEntity）时自动重建界面并重放写入。
+ *
+ * <p>
+ * 这一层只管生命周期与解析：画法在 {@link MachineUiOverlay}，面板怎么建在 {@link MachineUiPanelBuilder}，
+ * 写入时间线在 {@link MachineUiWrites}，配方在 {@link RecipeFiller}。
  */
 public class MachineUiElement extends AnimatedOverlayElementBase {
 
-    /** 叠在场景之上、文本框之下。 */
-    private static final float Z = 250f;
-    private static final int FLIGHT_TICKS = 10;
     private static final float MIN_FADE = 1 / 16f;
-    /** 传给 GUI 的鼠标坐标：远在面板之外，避开所有 hover / 拖拽分支。 */
-    private static final int OUTSIDE = -10000;
 
     private final MachineUI ui;
     private final Vec3 anchor;
+    private final Pointing pointing;
     private final BlockPos machinePos;
-    private final List<MachineUiPlacement.SlotWrite> writes;
-    private final boolean[] written;
+    private final MachineUiWrites writes;
+    /** 这次摆放挂的配方：入料、成品、进度条与机器的开停机都听它的。 */
+    @Nullable
+    private final RecipeFiller recipe;
+    /** 配方要编程电路时，面板里连电路 UI 一起画（场景没写 showCircuit() 也画）。 */
+    private final boolean recipeCircuit;
+    /** 这次摆放的缩放；0 表示用界面定义自己的 scale / fitToPanel。 */
+    private final float scale;
+    /** 红框计划：框哪一类控件、第几个、延迟多少 tick 亮起。 */
+    private final List<MachineUiPlacement.Outline> outlines;
 
-    private Resolved resolved;
+    private MachineUiPanel panel;
+    /** 每个红框只报一次「框不到」，免得每帧刷日志。 */
+    private boolean[] reportedOutlines;
     private boolean failed;
+    /** 面板已经演完：时间线不再跑，免得隐藏后还被 tick 到、把自己的写入重放一遍。 */
+    private boolean finished;
     private int ticksShown;
 
-    MachineUiElement(MachineUI ui, Vec3 anchor, BlockPos machinePos, List<MachineUiPlacement.SlotWrite> writes) {
-        this.ui = ui;
-        this.anchor = anchor;
-        this.machinePos = machinePos == null ? BlockPos.containing(anchor) : machinePos;
-        this.writes = writes;
-        this.written = new boolean[writes.size()];
+    MachineUiElement(MachineUiPlacement.Plan plan) {
+        this.ui = plan.ui();
+        this.anchor = plan.anchor();
+        this.pointing = plan.pointing();
+        this.machinePos = plan.machinePos() == null ? BlockPos.containing(plan.anchor()) : plan.machinePos();
+        this.writes = new MachineUiWrites(this.machinePos, plan.slots(), plan.fluids());
+        this.recipe = plan.recipe() == null ? null : new RecipeFiller(plan.recipe(), this.machinePos);
+        this.recipeCircuit = RecipeFiller.needsCircuit(plan.recipe());
+        this.scale = plan.scale();
+        this.outlines = plan.outlines();
+        this.reportedOutlines = new boolean[this.outlines.size()];
+    }
+
+    /**
+     * 场景回退（点关键帧、拖进度条）会走 {@code PonderUI#replay -> PonderScene#begin()}：Ponder 先给元素
+     * {@code reset()}，再重建 BlockEntity、重跑整条指令，而 {@code ShowMachineUiInstruction} 里的元素还是
+     * 同一个实例。把时间线和写入记录一起清掉，回退后数量才会重新从 0 叠起。
+     */
+    @Override
+    public void reset(PonderScene scene) {
+        restoreMachine();
+        writes.dropAdded();
+        finished = false;
+        panel = null;
+    }
+
+    /**
+     * 面板演完（{@link ShowMachineUiInstruction#hide}）时调用：还原写入，并停掉时间线。
+     *
+     * <p>必须停：{@code PonderScene.tick()} 会 tick <strong>所有</strong>元素（包括已经隐藏的），
+     * 而 {@link #restoreMachine()} 把 {@code ticksShown} 和写入标记清零了，元素会以为自己是刚出场，
+     * 于是把这一段的时间线又跑一遍——表现就是「下一段面板里莫名其妙又出现了上一段的物品」。
+     */
+    void finish() {
+        restoreMachine();
+        finished = true;
+    }
+
+    /** 把写进机器的内容、切过的模型状态与时间线一起还原。 */
+    private void restoreMachine() {
+        writes.restore(panel);
+        if (recipe != null) {
+            recipe.revert(panel);
+        }
+        ticksShown = 0;
     }
 
     @Override
     public void tick(PonderScene scene) {
-        if (failed) {
+        if (failed || finished) {
             return;
         }
         ticksShown++;
-        Resolved current = resolve(scene);
+        MachineUiPanel current = resolve(scene);
         if (current == null) {
             return;
         }
         current.modularUi().mainGroup.updateScreen();
-        applyScheduledWrites(current);
+        // 不是详情模式时也要刷配置器缓存：关掉详情后机器状态已经写回，图标得跟着回到打开前的样子，
+        // 不能等到下次再打开模式才更新（LDLib 容器不在，这个缓存的刷新只能我们自己来）。
+        ConfiguratorTabs.syncConfigurators(current.configurators());
+        // 配方按进度条开关机，改的是机器模型；Ponder 把世界渲染缓存住了，切完得让它重画一次。
+        if (recipe != null && recipe.tick(current, ticksShown)) {
+            MachineEdits.redraw(scene);
+        }
+        writes.tick(current, ticksShown);
     }
 
     @Override
     public void render(PonderScene scene, PonderUI screen, GuiGraphics graphics, float partialTicks, float fade) {
-        if (failed || fade < MIN_FADE) {
+        if (failed || finished || fade < MIN_FADE) {
             return;
         }
-        Resolved current = resolve(scene);
+        MachineUiPanel current = resolve(scene);
         if (current == null) {
             return;
         }
         try {
-            Vec2 projected = scene.getTransform().sceneToScreen(anchor, partialTicks);
-            float scale = ui.scale();
-            float width = current.width() * scale;
-            float height = current.height() * scale;
-            float x = Mth.clamp(projected.x, 8, Math.max(8, screen.width - width - 8));
-            float y = Mth.clamp(projected.y - height, 8, Math.max(8, screen.height - height - 8));
-
-            graphics.pose().pushPose();
-            graphics.pose().translate(x, y, Z);
-            graphics.pose().scale(scale, scale, 1);
-
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1, 1, 1, fade);
-            current.modularUi().mainGroup.drawInBackground(graphics, OUTSIDE, OUTSIDE, partialTicks);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-
-            renderFlyingItems(graphics, current);
-            graphics.pose().popPose();
+            MachineUiOverlay.render(scene, graphics, screen, this, current, anchor, pointing, partialTicks, fade,
+                    actualScale(screen, current), outlineBoxes(current), pulse(), ui.full());
         } catch (Throwable t) {
             fail("rendering the machine UI", t);
         }
     }
 
-    private void applyScheduledWrites(Resolved current) {
-        for (int i = 0; i < writes.size(); i++) {
-            if (written[i]) {
-                continue;
-            }
-            MachineUiPlacement.SlotWrite write = writes.get(i);
-            if (ticksShown < write.delayTicks() + FLIGHT_TICKS) {
-                continue;
-            }
-            SlotWidget slot = slotAt(current, write.index());
-            if (slot == null) {
-                continue;
-            }
-            slot.setItem(write.stack().copy());
-            written[i] = true;
-        }
+    /** 丢掉面板快照，下一帧重新解析：观众点页签换了页面之后边界与槽位表都要重算。 */
+    void invalidate() {
+        panel = null;
     }
 
-    private void renderFlyingItems(GuiGraphics graphics, Resolved current) {
-        for (int i = 0; i < writes.size(); i++) {
-            if (written[i]) {
-                continue;
-            }
-            MachineUiPlacement.SlotWrite write = writes.get(i);
-            float elapsed = ticksShown - write.delayTicks();
-            if (elapsed < 0 || elapsed >= FLIGHT_TICKS) {
-                continue;
-            }
-            SlotWidget slot = slotAt(current, write.index());
-            if (slot == null) {
-                continue;
-            }
-            float progress = Mth.clamp(elapsed / (float) FLIGHT_TICKS, 0f, 1f);
-            float eased = progress * progress * (3 - 2 * progress);
-            float startX = -6f;
-            float startY = current.height() + 14f;
-            float endX = slot.getPositionX() - current.originX() + 1f;
-            float endY = slot.getPositionY() - current.originY() + 1f;
-            GuiGameElement
-                    .of(write.stack()).<GuiGameElement.GuiRenderBuilder>at(Mth.lerp(eased, startX, endX),
-                            Mth.lerp(eased, startY, endY))
-                    .scale(1)
-                    .render(graphics);
+    /** 这次摆放的实际缩放：场景写死的优先，其次是界面定义上的 fitToPanel，最后是 scale。 */
+    private float actualScale(PonderUI screen, MachineUiPanel panel) {
+        if (scale > 0) {
+            return scale;
         }
+        return ui.fitFraction() > 0 ? ui.fitFraction() * screen.width / Math.max(1, panel.width()) : ui.scale();
     }
 
-    private static SlotWidget slotAt(Resolved current, int index) {
-        if (index < 0 || index >= current.machineSlots().size()) {
-            return null;
+    /** 到点的红框：取出控件的矩形（面板坐标）；这台机器没有那一类控件时报一行 error，只报一次。 */
+    private List<MachineUiOverlay.Box> outlineBoxes(MachineUiPanel panel) {
+        if (outlines.isEmpty()) {
+            return List.of();
         }
-        return current.machineSlots().get(index);
+        List<MachineUiOverlay.Box> boxes = new ArrayList<>();
+        for (int i = 0; i < outlines.size(); i++) {
+            MachineUiPlacement.Outline outline = outlines.get(i);
+            if (ticksShown < outline.delayTicks()) {
+                continue;
+            }
+            List<Widget> widgets = panel.parts(outline);
+            if (widgets.isEmpty()) {
+                reportMissingOutline(i, outline);
+                continue;
+            }
+            for (Widget widget : widgets) {
+                boxes.add(new MachineUiOverlay.Box(widget.getPositionX(), widget.getPositionY(),
+                        widget.getSizeWidth(), widget.getSizeHeight()));
+            }
+        }
+        return boxes;
     }
 
-    private Resolved resolve(PonderScene scene) {
+    /** 框不到就说清楚为什么：这台机器没有这一路控件，或者配置器那一列面板根本没画。 */
+    private void reportMissingOutline(int index, MachineUiPlacement.Outline outline) {
+        if (reportedOutlines[index]) {
+            return;
+        }
+        reportedOutlines[index] = true;
+        CTNHLib.LOGGER.error("CTNHLib: cannot outline the {} control of the machine at " +
+                "{}: this machine has no " +
+                "such control, or the configurator panel is not drawn (try showFullUI())", outline.part(),
+                machinePos);
+    }
+
+    /** 红框的呼吸：0~1 来回走，亮得有点节奏。 */
+    private float pulse() {
+        return (float) ((Math.sin(ticksShown * 0.25) + 1) / 2);
+    }
+
+    /** 按坐标取面板；BlockEntity 换了（重播、跳步）就重建一次，写入与配方也跟着重来。 */
+    private MachineUiPanel resolve(PonderScene scene) {
         BlockEntity blockEntity = scene.getWorld().getBlockEntity(machinePos);
         if (blockEntity == null) {
             return null;
         }
-        if (resolved != null && resolved.blockEntity() == blockEntity) {
-            return resolved;
+        if (panel != null && panel.blockEntity() == blockEntity) {
+            return panel;
         }
         try {
-            Resolved built = build(blockEntity);
+            MachineUiPanel built = MachineUiPanelBuilder.build(ui, machinePos, blockEntity, recipeCircuit);
             if (built == null) {
                 return null;
             }
-            // BlockEntity 被重建（场景重播 / 跳步）后，槽位写入需要重放。
-            for (int i = 0; i < written.length; i++) {
-                written[i] = false;
+            writes.resetMarks();
+            if (recipe != null) {
+                writes.dropAdded();
+                recipe.plan(built, writes);
             }
-            resolved = built;
+            panel = built;
             return built;
         } catch (Throwable t) {
             fail("building the machine UI", t);
             return null;
         }
-    }
-
-    private Resolved build(BlockEntity blockEntity) {
-        if (!(blockEntity instanceof IMachineBlockEntity holder)) {
-            return null;
-        }
-        MetaMachine machine = holder.getMetaMachine();
-        if (!(machine instanceof IUIMachine uiMachine)) {
-            return null;
-        }
-        Player player = Minecraft.getInstance().player;
-        if (player == null) {
-            return null;
-        }
-        if (ui.definition() != null && machine.getDefinition() != ui.definition()) {
-            CTNHLib.LOGGER.warn("MachineUI was defined for {} but {} sits at {}", ui.definition(),
-                    machine.getDefinition(), machinePos);
-        }
-
-        ModularUI modularUi = uiMachine.createUI(player);
-        if (modularUi == null) {
-            return null;
-        }
-        modularUi.initWidgets();
-
-        Widget root = pickRoot(modularUi);
-        if (root instanceof FancyMachineUIWidget fancy) {
-            applyFancyChrome(fancy);
-        }
-        List<SlotWidget> slots = collectMachineSlots(modularUi);
-        CTNHLib.LOGGER.debug("MachineUI at {}: panel {}x{} at ({}, {}), {} machine slot(s)", machinePos,
-                root.getSizeWidth(), root.getSizeHeight(), root.getPositionX(), root.getPositionY(), slots.size());
-        return new Resolved(blockEntity, modularUi, root.getPositionX(), root.getPositionY(), root.getSizeWidth(),
-                root.getSizeHeight(), slots);
-    }
-
-    private void applyFancyChrome(FancyMachineUIWidget fancy) {
-        if (!ui.playerInventory()) {
-            PlayerInventoryWidget inventory = fancy.getPlayerInventory();
-            if (inventory != null && inventory.isVisible()) {
-                inventory.setVisible(false);
-                fancy.setSize(fancy.getSizeWidth(), Math.max(0, fancy.getSizeHeight() - inventory.getSizeHeight()));
-            }
-        }
-        if (!ui.titleBar() && fancy.getTitleBar() != null) {
-            fancy.getTitleBar()
-                    .setVisible(false);
-        }
-        if (!ui.sideTabs() && fancy.getSideTabsWidget() != null) {
-            fancy.getSideTabsWidget()
-                    .setVisible(false);
-        }
-        if (!ui.configurators() && fancy.getConfiguratorPanel() != null) {
-            fancy.getConfiguratorPanel()
-                    .setVisible(false);
-        }
-    }
-
-    private static Widget pickRoot(ModularUI modularUi) {
-        if (modularUi.mainGroup.widgets.size() == 1 &&
-                modularUi.mainGroup.widgets.get(0) instanceof FancyMachineUIWidget fancy) {
-            return fancy;
-        }
-        return modularUi.mainGroup;
-    }
-
-    private static List<SlotWidget> collectMachineSlots(ModularUI modularUi) {
-        List<SlotWidget> slots = new ArrayList<>();
-        for (Widget widget : modularUi.mainGroup.getContainedWidgets(true)) {
-            if (widget instanceof SlotWidget slot && !slot.isPlayerContainer && slot.isVisible()) {
-                slots.add(slot);
-            }
-        }
-        return slots;
     }
 
     private void fail(String phase, Throwable throwable) {
@@ -270,7 +234,4 @@ public class MachineUiElement extends AnimatedOverlayElementBase {
         failed = true;
         CTNHLib.LOGGER.error("MachineUI element failed while {} (machine at {})", phase, machinePos, throwable);
     }
-
-    private record Resolved(BlockEntity blockEntity, ModularUI modularUi, int originX, int originY, int width,
-                            int height, List<SlotWidget> machineSlots) {}
 }
