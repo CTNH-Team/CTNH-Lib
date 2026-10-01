@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
 import net.createmod.ponder.foundation.PonderScene;

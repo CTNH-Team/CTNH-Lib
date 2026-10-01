@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
@@ -23,7 +22,8 @@ import java.util.List;
  * 一次解析出来的机器面板：机器真实的 {@link ModularUI}、它在屏幕上的边界，以及按控件顺序排好的
  * 机器槽位、储罐与进度条。BlockEntity 重建（场景重播、跳步）后这份快照就作废，重新解析。
  *
- * <p>控件都画自己的缓存值，所以槽位、储罐、进度条在 {@link MachineUiPanelBuilder} 里统一打开
+ * <p>
+ * 控件都画自己的缓存值，所以槽位、储罐、进度条在 {@link MachineUiPanelBuilder} 里统一打开
  * client-side 模式，让它们每帧从真实机器上取值。
  */
 record MachineUiPanel(BlockEntity blockEntity, ModularUI modularUi, int originX, int originY, int width, int height,
@@ -42,7 +42,8 @@ record MachineUiPanel(BlockEntity blockEntity, ModularUI modularUi, int originX,
             case PROGRESS -> one(outline.index() >= 0 && outline.index() < progressWidgets.size() ?
                     progressWidgets.get(outline.index()) : null);
             case CIRCUIT -> one(circuit);
-            case POWER, AUTO_OUTPUT, CIRCUIT_BUTTON, DISTINCT -> ConfiguratorTabs.buttons(configurators, outline.part());
+            case POWER, AUTO_OUTPUT, CIRCUIT_BUTTON, DISTINCT -> ConfiguratorTabs.buttons(configurators,
+                    outline.part());
         };
     }
 

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder;
-
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
-import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiInteraction;
 
 import net.createmod.ponder.foundation.ui.PonderButton;
 import net.createmod.ponder.foundation.ui.PonderUI;
@@ -25,6 +21,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiInteraction;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -35,15 +33,17 @@ import java.util.List;
 /**
  * 思索界面底部的「查看 UI 详情」按钮。
  *
- * <p>规则只有三条：
+ * <p>
+ * 规则只有三条：
  * <ol>
- *   <li>只有当前这一段画着机器 UI 时它才出现，也只在这时候动那一排按钮；别的场景一个像素都不碰。</li>
- *   <li>进入这类场景时按 <strong>Ponder 原始位置</strong>算一次目标位置（认得出快捷键的那些按钮连它一起等分），
- *       离开时全部还原。不做逐帧重排，所以没有抖动，也不会越排越偏。</li>
- *   <li>画图标与文字只有一个地方：按钮自己的 render。别处一律不画，避免出现两个。</li>
+ * <li>只有当前这一段画着机器 UI 时它才出现，也只在这时候动那一排按钮；别的场景一个像素都不碰。</li>
+ * <li>进入这类场景时按 <strong>Ponder 原始位置</strong>算一次目标位置（认得出快捷键的那些按钮连它一起等分），
+ * 离开时全部还原。不做逐帧重排，所以没有抖动，也不会越排越偏。</li>
+ * <li>画图标与文字只有一个地方：按钮自己的 render。别处一律不画，避免出现两个。</li>
  * </ol>
  *
- * <p>按钮由 {@code PonderUIMixin} 在 {@code PonderUI.init()} 末尾挂进 PonderUI 自己的控件表，
+ * <p>
+ * 按钮由 {@code PonderUIMixin} 在 {@code PonderUI.init()} 末尾挂进 PonderUI 自己的控件表，
  * 于是渲染、淡入淡出、点击派发都跟底部那一排一样；点击面板时由 mixin 转给 {@link MachineUiInteraction}。
  */
 @Mod.EventBusSubscriber(modid = CTNHLib.MODID, value = Dist.CLIENT)
@@ -59,7 +59,6 @@ public final class PonderUiButtons {
     private static final int MISSING_FRAMES = 10;
     /** 贴在这个比例的屏幕宽度以内的按钮算"边缘按钮"（退出那类），不当锚点。 */
     private static final float EDGE_FRACTION = 0.12f;
-
 
     @Nullable
     private static PonderUI screen;
@@ -85,10 +84,12 @@ public final class PonderUiButtons {
     /**
      * 挂按钮：同一屏里已经有一个就复用，绝不建第二个。
      *
-     * <p>去重必须看这一屏自己的控件表：从子界面返回或窗口尺寸变化都会让 {@code Screen#init()} 再跑一次，
+     * <p>
+     * 去重必须看这一屏自己的控件表：从子界面返回或窗口尺寸变化都会让 {@code Screen#init()} 再跑一次，
      * 那时候别的屏幕可能已经把静态标记清掉了，靠标记去重就会多挂一个（屏幕上出现两个按钮）。
      *
-     * <p>每次都重新记一遍原始坐标（用 putIfAbsent，不覆盖更早的值），并让排布重来一次 ——
+     * <p>
+     * 每次都重新记一遍原始坐标（用 putIfAbsent，不覆盖更早的值），并让排布重来一次 ——
      * Ponder 重跑 init 时可能已经把那一排按钮换成了新对象。
      */
     public static void attach(PonderUI ponder) {
@@ -141,7 +142,8 @@ public final class PonderUiButtons {
      * 每帧渲染前：先读上一帧登记的面板状态（读早了这帧还没人登记，读晚了就被清空），
      * 再清空登记，最后决定按钮显不显示、能不能点。
      *
-     * <p>这个方法是「每帧只处理一次」的：mixin 与 Forge 事件两条路都会调，第一次读到的才是
+     * <p>
+     * 这个方法是「每帧只处理一次」的：mixin 与 Forge 事件两条路都会调，第一次读到的才是
      * 上一帧的真实登记，第二次读到的已经被自己清空了 —— 那会把状态全判成「没有 UI」，
      * 于是模式刚点开就被关掉（场景照旧推进）、按钮也一直灰着点不动。
      */
@@ -292,12 +294,11 @@ public final class PonderUiButtons {
 
     // ===== 定位 =====
 
-
-
     /**
      * 把按钮贴在"显示方块名称"右边，紧挨着放。
      *
-     * <p>"显示方块名称"= 这一排里第一个不贴着屏幕左边缘的按钮：最左边那个"退出"是贴边的，
+     * <p>
+     * "显示方块名称"= 这一排里第一个不贴着屏幕左边缘的按钮：最左边那个"退出"是贴边的，
      * 而它在有些段落里还会变成不可见，所以不能简单地把"最左"去掉。判定只看坐标、不读任何字段。
      * Ponder 自己的按钮一个都不移动。
      */

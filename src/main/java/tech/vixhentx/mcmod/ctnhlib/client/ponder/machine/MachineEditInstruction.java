@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.machine;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -13,7 +12,8 @@ import net.minecraft.core.BlockPos;
 /**
  * 把一段机器改动挂到思索时间线上：{@code delayTicks} 个 tick 后执行一次，场景回退时还原。
  *
- * <p>机器按坐标现场解析，所以不持有实例；它和 UI 完全无关，面板画不画都照常生效。
+ * <p>
+ * 机器按坐标现场解析，所以不持有实例；它和 UI 完全无关，面板画不画都照常生效。
  */
 public class MachineEditInstruction extends TickingInstruction {
 

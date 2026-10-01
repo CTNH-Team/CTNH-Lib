@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
-
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
-import tech.vixhentx.mcmod.ctnhlib.client.ponder.machine.MachineEdits;
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 
@@ -18,6 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.machine.MachineEdits;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +88,8 @@ public class MachineUiElement extends AnimatedOverlayElementBase {
     /**
      * 面板演完（{@link ShowMachineUiInstruction#hide}）时调用：还原写入，并停掉时间线。
      *
-     * <p>必须停：{@code PonderScene.tick()} 会 tick <strong>所有</strong>元素（包括已经隐藏的），
+     * <p>
+     * 必须停：{@code PonderScene.tick()} 会 tick <strong>所有</strong>元素（包括已经隐藏的），
      * 而 {@link #restoreMachine()} 把 {@code ticksShown} 和写入标记清零了，元素会以为自己是刚出场，
      * 于是把这一段的时间线又跑一遍——表现就是「下一段面板里莫名其妙又出现了上一段的物品」。
      */

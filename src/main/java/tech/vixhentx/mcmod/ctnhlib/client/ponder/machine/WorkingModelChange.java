@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.machine;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
 import com.gregtechceu.gtceu.client.model.machine.MachineRenderState;
@@ -13,13 +11,16 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 /**
  * 只换机器的模型：工作状态画的是运行中的正面贴图（{@code overlay_front_active}），待机画普通贴图。
  *
- * <p>配方逻辑一点不动：状态、进度、耗电、工作开关都原样，只换外观。
+ * <p>
+ * 配方逻辑一点不动：状态、进度、耗电、工作开关都原样，只换外观。
  *
- * <p>外观存在机器的 {@link MachineRenderState} 里：能工作的机器看 {@code RECIPE_LOGIC_STATUS}，
+ * <p>
+ * 外观存在机器的 {@link MachineRenderState} 里：能工作的机器看 {@code RECIPE_LOGIC_STATUS}，
  * 少数机器（世界加速器那种）挂在 {@code IS_ACTIVE} 上，两种都认；都没有就在日志里报一行 error。
  */
 public final class WorkingModelChange implements MachineEdit {

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
 import net.createmod.catnip.math.Pointing;
@@ -18,7 +17,8 @@ import java.util.List;
 /**
  * {@link MachineUI} 的一次摆放：指向点、指针方向、缩放、槽位写入与红框计划，由 {@code MachineUIs#showUI} 创建。
  *
- * <p>机器默认按指向点所在方块解析；{@link #at(BlockPos)} 直接用该方块的中心当指向点，
+ * <p>
+ * 机器默认按指向点所在方块解析；{@link #at(BlockPos)} 直接用该方块的中心当指向点，
  * 需要「尾巴指向这里、面板画那台机器」时用 {@link #at(Vec3, BlockPos)}。
  *
  * <pre>{@code
@@ -101,11 +101,13 @@ public final class MachineUiPlacement {
      * 按配方 id 自动填这台机器：输入进输入槽、流体进输入储罐、成品落进输出槽与输出储罐，
      * 面板里的进度条跟着走一遍。
      *
-     * <p>槽位和储罐哪个是输入、哪个是输出，看 GT 自己打的 {@code IngredientIO} 标签，不用猜顺序。
+     * <p>
+     * 槽位和储罐哪个是输入、哪个是输出，看 GT 自己打的 {@code IngredientIO} 标签，不用猜顺序。
      * 机器与配方对不上（不是配方机器、配方 id 不存在、配方类型不属于这台机器、面板里没有对应槽位）时
      * 在日志里报一行 error，这一段跳过，面板照常画。
      *
-     * <p>时间线：入料 1 秒 → 进度条 1 秒 → 成品 1 秒，{@code show(...)} 的时长要留够。
+     * <p>
+     * 时间线：入料 1 秒 → 进度条 1 秒 → 成品 1 秒，{@code show(...)} 的时长要留够。
      */
     public MachineUiPlacement recipe(String recipeId) {
         return recipe(recipeId, 0);

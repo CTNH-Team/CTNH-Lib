@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.machine;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import com.gregtechceu.gtceu.api.capability.ICoverable;
 import com.gregtechceu.gtceu.api.cover.CoverBehavior;
 import com.gregtechceu.gtceu.api.cover.CoverDefinition;
@@ -17,15 +15,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 /**
  * 给机器的指定面放一块覆盖板——只是改机器状态，和界面无关。
  *
- * <p>覆盖板用它的物品指定，例如 {@code GTItems.CONVEYOR_MODULE_LV.asStack()}：物品上挂着
+ * <p>
+ * 覆盖板用它的物品指定，例如 {@code GTItems.CONVEYOR_MODULE_LV.asStack()}：物品上挂着
  * {@link CoverPlaceBehavior}，定义就在里面；也可以直接给 {@link CoverDefinition}。
  * 用物品指定时会把这件物品一并交给覆盖板，{@code gtceu:facade} 这类要读物品数据的覆盖板得用它。
  *
- * <p>机器没有覆盖板容器、这一面放不下、覆盖板拒绝附着（例如机器这一面没有它要的接口）时，
+ * <p>
+ * 机器没有覆盖板容器、这一面放不下、覆盖板拒绝附着（例如机器这一面没有它要的接口）时，
  * 在日志里报一行 error 并跳过，场景继续播。
  */
 public final class CoverChange implements MachineEdit {

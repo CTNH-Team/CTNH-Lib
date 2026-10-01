@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyConfigurator;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator;
@@ -14,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -22,7 +21,8 @@ import java.util.List;
 /**
  * 在 GT 的配置器面板里认页签：电源开关、自动输出、电路、总线隔离都是这一列里的按钮。
  *
- * <p>页签的 {@code configurator} 字段是 protected，只能反射读一次并缓存；认哪一类看它的 tooltip
+ * <p>
+ * 页签的 {@code configurator} 字段是 protected，只能反射读一次并缓存；认哪一类看它的 tooltip
  * （GT 自己的 lang key：{@code behaviour.soft_hammer.*}、{@code gtceu.gui.*_auto_output.*}、
  * {@code gtceu.multiblock.universal.distinct}），电路那一类直接看类型。
  */
@@ -64,11 +64,11 @@ final class ConfiguratorTabs {
         return buttons;
     }
 
-
     /**
      * 手动同步配置器自己的缓存。
      *
-     * <p>开关（IFancyConfiguratorButton.Toggle）把「按下状态」缓存在自己的字段里：点击时用缓存值算新状态、
+     * <p>
+     * 开关（IFancyConfiguratorButton.Toggle）把「按下状态」缓存在自己的字段里：点击时用缓存值算新状态、
      * 图标也读缓存值。那个缓存平时由 LDLib 的容器同步（detectAndSendChange）刷新，而 ponder 里没有容器，
      * 于是它停在初始值 —— 点击看似没反应、图标也不变。这里调用 GT 自己的 detectAndSendChange，
      * 发送方给个空实现，只取它「把 supplier 的值写进缓存」的那一半。

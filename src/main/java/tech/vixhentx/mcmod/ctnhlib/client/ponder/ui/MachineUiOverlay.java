@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyUIProvider;
 import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
 
@@ -22,6 +20,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,12 +118,13 @@ final class MachineUiOverlay {
     /**
      * 前景层：选中高亮、幽灵槽文字这些画在这里。
      *
-     * <p>但它会去要 {@code ModularUIGuiContainer}，而 ponder 里没有这个容器：
+     * <p>
+     * 但它会去要 {@code ModularUIGuiContainer}，而 ponder 里没有这个容器：
      * GT 的 ConfiguratorPanel 与 LDLib 的 SlotWidget 在那里都会 NPE。所以整层包一层保护，
      * 崩了就只跳过前景层（背景层已经画完，面板照常显示），并且只报一次。
      */
     private static void drawForeground(MachineUiPanel panel, GuiGraphics graphics, int mouseX, int mouseY,
-                                        float partialTicks) {
+                                       float partialTicks) {
         try {
             panel.modularUi().mainGroup.drawInForeground(graphics, mouseX, mouseY, partialTicks);
         } catch (Throwable t) {

@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
-
+import com.gregtechceu.gtceu.api.capability.IControllable;
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.trait.AutoOutputTrait;
-import com.gregtechceu.gtceu.api.capability.IControllable;
 
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
@@ -18,6 +15,7 @@ import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -29,7 +27,8 @@ import java.util.function.Consumer;
  * 「查看 UI 详情」打开之后，面板上只有两类控件能点：左下与左侧的页签（机器主界面、更改方向设置这些页面切换），
  * 以及配置器面板里的电路页签。别的控件一律不转发事件。
  *
- * <p>面板每帧渲染时把落点登记进来（{@link #publish}），点击时按屏幕坐标反算回 UI 坐标再命中判定，
+ * <p>
+ * 面板每帧渲染时把落点登记进来（{@link #publish}），点击时按屏幕坐标反算回 UI 坐标再命中判定，
  * 所以不需要给 Ponder 或 LDLib 挂任何输入钩子。
  */
 public final class MachineUiInteraction {
@@ -71,7 +70,8 @@ public final class MachineUiInteraction {
     /**
      * 开关模式：开启时记下这几个开关当前的状态，关闭时原样还回去。
      *
-     * <p>观众在冻结期间拨动电源、自动输出或电路，改的是机器本身；不还回去的话，
+     * <p>
+     * 观众在冻结期间拨动电源、自动输出或电路，改的是机器本身；不还回去的话，
      * 恢复播放之后场景自己的状态就被这层改动顶掉了，看起来就是「回不到正常状态」。
      */
     public static void setEnabled(boolean value) {
@@ -176,7 +176,8 @@ public final class MachineUiInteraction {
     /**
      * 冻结场景时由 mixin 每个 tick 调：场景不推进，但面板自己的 UI 还得继续更新。
      *
-     * <p>LDLib 的控件靠 updateScreen() 跑动画与布局（页签切换就是要它把新页面淡进来），
+     * <p>
+     * LDLib 的控件靠 updateScreen() 跑动画与布局（页签切换就是要它把新页面淡进来），
      * 而它平时是被场景元素的 tick 驱动的 —— 场景一冻就全停了，所以这里补上；
      * 顺手处理换页后的面板重建（元素 tick 同样被冻住，不能指望它）。
      */
@@ -197,7 +198,8 @@ public final class MachineUiInteraction {
     /**
      * 屏幕坐标的一次点击：落在允许交互的控件上就处理掉并返回 true。
      *
-     * <p>只有当前画着原版整套 UI 时才有交互可言：裁剪版或者没有面板时一律不处理。
+     * <p>
+     * 只有当前画着原版整套 UI 时才有交互可言：裁剪版或者没有面板时一律不处理。
      */
     public static boolean click(double mouseX, double mouseY, int button) {
         if (!enabled || !hasFullPanel()) {
@@ -242,8 +244,8 @@ public final class MachineUiInteraction {
                     }
                 }
                 // 2) 展开出来的配置器内容（电路格子那些）：找到点中的按钮，用「非远程」的 ClickData 调它的回调。
-                //    GT 的电路格子写的是 if (!clickData.isRemote) 才改本地槽位，而 LDLib 客户端构造的
-                //    ClickData 恒为 isRemote = true（正常靠同步包回传），ponder 里没有服务端，于是点了没反应。
+                // GT 的电路格子写的是 if (!clickData.isRemote) 才改本地槽位，而 LDLib 客户端构造的
+                // ClickData 恒为 isRemote = true（正常靠同步包回传），ponder 里没有服务端，于是点了没反应。
                 ButtonWidget hit = findButton(configurators, uiX, uiY);
                 if (hit != null && press(hit, button) || configurators.mouseClicked(uiX, uiY, button)) {
                     CTNHLib.LOGGER.info("CTNHLib: configurator body ui=({}, {}) button={}",
@@ -271,7 +273,8 @@ public final class MachineUiInteraction {
     /**
      * 按一次按钮：直接调它的 onPressCallback，传入 isRemote = false 的 ClickData。
      *
-     * <p>走 mouseClicked 的话 LDLib 会自己造一个 isRemote = true 的 ClickData，
+     * <p>
+     * 走 mouseClicked 的话 LDLib 会自己造一个 isRemote = true 的 ClickData，
      * GT 那些「只在非远程时改本地状态」的回调就全被跳过了。
      */
     private static boolean press(ButtonWidget widget, int mouseButton) {
@@ -317,7 +320,6 @@ public final class MachineUiInteraction {
             }
         }
         return pressCallback;
-
     }
 
     /** 点是否落在某个控件的矩形里（面板 UI 坐标）。 */

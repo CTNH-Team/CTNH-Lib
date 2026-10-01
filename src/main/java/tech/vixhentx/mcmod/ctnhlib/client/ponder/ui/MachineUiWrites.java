@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
-
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 import com.lowdragmc.lowdraglib.gui.widget.SlotWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
@@ -11,6 +8,8 @@ import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +19,8 @@ import java.util.List;
  * 一次摆放的写入时间线：往第几个槽位、第几个储罐写多少东西、从第几个 tick 开始。数量一律在
  * {@link #FILL_TICKS} 个 tick 内从 0 叠到目标值，面板收起或场景回退时按写入前的内容还原。
  *
- * <p>摆放自带的写入（{@code slot(...).withItem(...)}）排在前面，配方追加的排在后面，
+ * <p>
+ * 摆放自带的写入（{@code slot(...).withItem(...)}）排在前面，配方追加的排在后面，
  * 回退时把追加的那批截掉，免得重播时越叠越多。
  */
 final class MachineUiWrites {

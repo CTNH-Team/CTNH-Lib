@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.block.Block;
  * 定义侧：
  *
  * <pre>{@code
+ * 
  * private static final MachineUI LV_INPUT_BUS_UI = MachineUI.of(GTMachines.ITEM_IMPORT_BUS[GTValues.LV])
  *         .scale(0.6f);
  * }</pre>
@@ -90,7 +90,8 @@ public final class MachineUI {
      * 原版 GT 的那一整套都画上：标题栏、左侧页签、机器页、配置器面板（工作开关、电路、覆盖板那些图标）、
      * 提示面板与玩家背包，一个组件都不裁剪，位置也照 GT 自己的布局。
      *
-     * <p>这套里已经有 GT 自己的电路按钮，所以不用再写 {@link #showCircuit()}；想在这个基础上加也行。
+     * <p>
+     * 这套里已经有 GT 自己的电路按钮，所以不用再写 {@link #showCircuit()}；想在这个基础上加也行。
      */
     public MachineUI showFullUI() {
         return copy(true, true, true, true, circuit, true, true, scale, fitFraction);
@@ -98,12 +99,14 @@ public final class MachineUI {
 
     /** 不画标题栏。 */
     public MachineUI hideTitleBar() {
-        return copy(false, sideTabs, playerInventory, configurators, circuit, navigationButtons, full, scale, fitFraction);
+        return copy(false, sideTabs, playerInventory, configurators, circuit, navigationButtons, full, scale,
+                fitFraction);
     }
 
     /** 不画左侧页签。 */
     public MachineUI hideSideTabs() {
-        return copy(titleBar, false, playerInventory, configurators, circuit, navigationButtons, full, scale, fitFraction);
+        return copy(titleBar, false, playerInventory, configurators, circuit, navigationButtons, full, scale,
+                fitFraction);
     }
 
     /** 额外画上玩家背包（默认不画）。 */
@@ -118,7 +121,8 @@ public final class MachineUI {
 
     /** 额外画上编程电路 UI（默认不画）：展开的设置面板占背包那一行，按钮贴在它左边、垂直居中。 */
     public MachineUI showCircuit() {
-        return copy(titleBar, sideTabs, playerInventory, configurators, true, navigationButtons, full, scale, fitFraction);
+        return copy(titleBar, sideTabs, playerInventory, configurators, true, navigationButtons, full, scale,
+                fitFraction);
     }
 
     /** 额外画上标题栏的返回与翻页按钮（默认不画）。 */
@@ -136,7 +140,8 @@ public final class MachineUI {
      * 与 {@link #scale(float)} 二选一，后设的生效。
      */
     public MachineUI fitToPanel(float fraction) {
-        return copy(titleBar, sideTabs, playerInventory, configurators, circuit, navigationButtons, full, scale, fraction);
+        return copy(titleBar, sideTabs, playerInventory, configurators, circuit, navigationButtons, full, scale,
+                fraction);
     }
 
     /** 开始一次摆放。 */

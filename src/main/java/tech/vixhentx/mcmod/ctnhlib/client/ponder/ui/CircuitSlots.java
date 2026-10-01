@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -16,7 +15,8 @@ import java.lang.reflect.Field;
 /**
  * 取机器上的编程电路槽（fork 版把这一路做成了 trait：{@link ProgrammableCircuitSlotTrait}）。
  *
- * <p>上游 GT 是 {@code IHasCircuitSlot#getCircuitInventory()}，fork 里 trait 自己拿着一个
+ * <p>
+ * 上游 GT 是 {@code IHasCircuitSlot#getCircuitInventory()}，fork 里 trait 自己拿着一个
  * {@code CustomItemStackHandler}，字段是私有的，这里反射读一次并缓存。
  */
 final class CircuitSlots {

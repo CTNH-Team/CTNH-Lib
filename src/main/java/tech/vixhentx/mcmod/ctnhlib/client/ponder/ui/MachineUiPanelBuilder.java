@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
 import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget;
@@ -11,7 +9,6 @@ import com.gregtechceu.gtceu.api.gui.fancy.TitleBarWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator;
-import com.gregtechceu.gtceu.api.machine.trait.ProgrammableCircuitSlotTrait;
 import com.gregtechceu.gtceu.api.machine.feature.IUIMachine;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
@@ -30,6 +27,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +49,7 @@ final class MachineUiPanelBuilder {
 
     /** 造面板；这里不是机器、机器没有 UI、玩家不在（比如主菜单）时返回 null，元素这一段就不画。 */
     static @Nullable MachineUiPanel build(MachineUI ui, BlockPos machinePos, BlockEntity blockEntity,
-                                         boolean recipeCircuit) {
+                                          boolean recipeCircuit) {
         if (!(blockEntity instanceof IMachineBlockEntity holder)) {
             return null;
         }
@@ -114,7 +112,8 @@ final class MachineUiPanelBuilder {
     /**
      * 挂上编程电路 UI：展开的面板挂在面板下方、与背包那一行水平对齐，按钮贴在它左边、垂直居中。
      *
-     * <p>展开的面板自己带 GT 的背景与标题（跟 {@code ConfiguratorPanel} 里那个浮层一样），里面是 GT 自己的
+     * <p>
+     * 展开的面板自己带 GT 的背景与标题（跟 {@code ConfiguratorPanel} 里那个浮层一样），里面是 GT 自己的
      * {@link CircuitFancyConfigurator}：上面幽灵电路槽、下面 0~32 的格子。按钮图标每帧重取，所以电路换了
      * 按钮与格子里的东西也跟着换；这里只画，不改机器状态。
      *

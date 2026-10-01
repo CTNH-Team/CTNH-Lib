@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 // Copyright (C) 2026 mmyddd
-
 package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 
-import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
-import tech.vixhentx.mcmod.ctnhlib.client.ponder.machine.WorkingModelChange;
-import com.gregtechceu.gtceu.api.machine.trait.ProgrammableCircuitSlotTrait;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeDefinition;
@@ -29,6 +25,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.ItemStackHandler;
 
 import org.jetbrains.annotations.Nullable;
+import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.machine.WorkingModelChange;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,10 +36,12 @@ import java.util.List;
  * 一次配方摆放的全部动作：入料进输入槽、流体进输入储罐；进度条走起来就把机器模型切成工作中的样子，
  * 走完立刻切回待机，成品同时落进输出槽与输出储罐。
  *
- * <p>哪些槽位、储罐是输入，哪些是输出，看 GT 自己打的 {@link IngredientIO} 标签（GT 给 EMI 传配方
+ * <p>
+ * 哪些槽位、储罐是输入，哪些是输出，看 GT 自己打的 {@link IngredientIO} 标签（GT 给 EMI 传配方
  * 用的也是这一套），所以不用猜槽位顺序。
  *
- * <p>机器与配方对不上——不是配方机器、配方 id 不存在、配方类型不属于这台机器、面板里没有对应的槽位——
+ * <p>
+ * 机器与配方对不上——不是配方机器、配方 id 不存在、配方类型不属于这台机器、面板里没有对应的槽位——
  * 就在日志里报一行 error，这一段跳过，面板照常画，机器也不动。
  */
 final class RecipeFiller {
@@ -196,7 +196,7 @@ final class RecipeFiller {
             circuitApplied = false;
             if (CircuitSlots.hasCircuit(panel.machine())) {
                 try {
-                        CircuitSlots.storage(panel.machine()).setStackInSlot(0, previousCircuit);
+                    CircuitSlots.storage(panel.machine()).setStackInSlot(0, previousCircuit);
                 } catch (Throwable t) {
                     CTNHLib.LOGGER.error("CTNHLib: restoring the circuit of the machine at {} threw", machinePos,
                             t);
@@ -230,7 +230,7 @@ final class RecipeFiller {
 
     /** 把配方的编程电路从物品输入里摘出来；一张配方最多一个电路。 */
     private static ItemStack takeCircuit(List<ItemStack> items) {
-        for (Iterator<ItemStack> iterator = items.iterator(); iterator.hasNext(); ) {
+        for (Iterator<ItemStack> iterator = items.iterator(); iterator.hasNext();) {
             ItemStack stack = iterator.next();
             if (IntCircuitBehaviour.isIntegratedCircuit(stack)) {
                 iterator.remove();
@@ -243,7 +243,8 @@ final class RecipeFiller {
     /**
      * 管理器里的东西换成运行时配方。
      *
-     * <p>官方 GT 往 {@code RecipeManager} 里放的就是 {@link GTRecipe}；CTNH 用的 fork 放的是
+     * <p>
+     * 官方 GT 往 {@code RecipeManager} 里放的就是 {@link GTRecipe}；CTNH 用的 fork 放的是
      * {@link GTRecipeDefinition}（它同样实现了原版 {@code Recipe}，带 id 与入料/出料），要调
      * {@code toRuntime()} 才拿到能读内容、能比配方类型的那份。
      */
