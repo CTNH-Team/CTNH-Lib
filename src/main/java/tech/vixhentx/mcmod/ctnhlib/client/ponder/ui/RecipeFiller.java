@@ -8,6 +8,7 @@ import tech.vixhentx.mcmod.ctnhlib.client.ponder.machine.WorkingModelChange;
 import com.gregtechceu.gtceu.api.machine.trait.ProgrammableCircuitSlotTrait;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeDefinition;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
@@ -76,7 +77,8 @@ final class RecipeFiller {
         ClientLevel level = minecraft == null ? null : minecraft.level;
         RecipeManager manager = key == null || level == null ? null : level.getRecipeManager();
         Recipe<?> found = manager == null ? null : manager.byKey(key).orElse(null);
-        if (!(found instanceof GTRecipe recipe)) {
+        GTRecipe recipe = runtime(found);
+        if (recipe == null) {
             return false;
         }
         for (ItemStack stack : RecipeHelper.getInputItems(recipe, false)) {
@@ -238,6 +240,23 @@ final class RecipeFiller {
         return ItemStack.EMPTY;
     }
 
+    /**
+     * 管理器里的东西换成运行时配方。
+     *
+     * <p>官方 GT 往 {@code RecipeManager} 里放的就是 {@link GTRecipe}；CTNH 用的 fork 放的是
+     * {@link GTRecipeDefinition}（它同样实现了原版 {@code Recipe}，带 id 与入料/出料），要调
+     * {@code toRuntime()} 才拿到能读内容、能比配方类型的那份。
+     */
+    private static @Nullable GTRecipe runtime(@Nullable Recipe<?> found) {
+        if (found instanceof GTRecipe recipe) {
+            return recipe;
+        }
+        if (found instanceof GTRecipeDefinition definition) {
+            return definition.toRuntime();
+        }
+        return null;
+    }
+
     /** 进度条位置，给面板里的控件每帧问一次。 */
     private double progress() {
         return progressValue;
@@ -258,7 +277,8 @@ final class RecipeFiller {
             return null;
         }
         Recipe<?> recipe = manager.byKey(key).orElse(null);
-        if (!(recipe instanceof GTRecipe gtRecipe)) {
+        GTRecipe gtRecipe = runtime(recipe);
+        if (gtRecipe == null) {
             error("there is no GT recipe with this id");
             return null;
         }
