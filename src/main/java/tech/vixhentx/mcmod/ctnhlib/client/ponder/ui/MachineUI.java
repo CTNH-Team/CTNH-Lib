@@ -49,6 +49,8 @@ public final class MachineUI {
     private final boolean navigationButtons;
     /** 原版整套：GT 自己的布局一个组件都不裁剪。 */
     private final boolean full;
+    /** 控制器在思索里默认不成型，面板照实显示「结构无效」；打开这个开关后直接按成型显示，不跑结构校验。 */
+    private boolean forceMultiblockActivated;
     private final float scale;
     private final float fitFraction;
 
@@ -70,6 +72,17 @@ public final class MachineUI {
     /** 以 GT 机器定义创建界面描述，默认画「标题栏 + 页签 + 机器页」。 */
     public static MachineUI of(MachineDefinition definition) {
         return new MachineUI(definition, true, true, false, false, false, false, false, 1.0f, 0.0f);
+    }
+
+    /** 兜底开关：让控制器在思索里直接成型（只调 {@code onStructureFormed()}，不跑结构校验；失败只记日志）。不写这一句就照实显示「结构无效」。 */
+    public MachineUI forceMultiblockActivated() {
+        this.forceMultiblockActivated = true;
+        return this;
+    }
+
+    /** 见 {@link #forceMultiblockActivated()}：是否让控制器在思索里直接成型。 */
+    public boolean isForceMultiblockActivated() {
+        return forceMultiblockActivated;
     }
 
     /** 以机器方块创建界面描述。 */
