@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUI;
+import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiStart;
 import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiPlacement;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.Lang;
 
@@ -66,9 +67,12 @@ public class CTNHPonderSceneBuilder extends CreateSceneBuilder {
 
     /**
      * 摆放一个可复用的机器界面，例如
-     * {@code scene.showUI(MY_MACHINE_UI).at(anchor).forMachine(pos).slot(0).withItem(stack).show(200)}。
+     * {@code scene.showUI(MY_MACHINE_UI).at(anchor).machinePos(pos).slot(0).withItem(stack).show(200)}。
+     *
+     * <p>
+     * 返回起点态：接着必须用 {@code at(...)} 给出坐标，{@code at(Vec3)} 之后还须补 {@code machinePos(pos)}。
      */
-    public MachineUiPlacement showUI(MachineUI ui) {
+    public MachineUiStart showUI(MachineUI ui) {
         return ui.in(this);
     }
 
