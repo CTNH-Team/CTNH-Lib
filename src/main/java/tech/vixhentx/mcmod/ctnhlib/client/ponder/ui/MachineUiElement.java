@@ -213,6 +213,9 @@ public class MachineUiElement extends AnimatedOverlayElementBase {
     private MachineUiPanel resolve(PonderScene scene) {
         BlockEntity blockEntity = scene.getWorld().getBlockEntity(machinePos);
         if (blockEntity == null) {
+            MachineUiPanelBuilder.reportUnavailable(machinePos,
+                    "there is no block entity at this position — check the forMachine(...) coordinate "
+                            + "against the storyboard (the controller is often one block off)");
             return null;
         }
         if (panel != null && panel.blockEntity() == blockEntity) {

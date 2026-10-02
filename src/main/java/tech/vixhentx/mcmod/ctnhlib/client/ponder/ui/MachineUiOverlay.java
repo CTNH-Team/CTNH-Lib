@@ -5,7 +5,9 @@ package tech.vixhentx.mcmod.ctnhlib.client.ponder.ui;
 import com.gregtechceu.gtceu.api.gui.fancy.IFancyUIProvider;
 import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
 
+import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
 import com.lowdragmc.lowdraglib.gui.widget.SlotWidget;
+import com.lowdragmc.lowdraglib.gui.widget.SwitchWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 
 import net.createmod.catnip.math.Pointing;
@@ -53,6 +55,7 @@ final class MachineUiOverlay {
     private static final String SLOT_INDEX_KEY = "ctnhlib.tooltip.slot_index";
     /** 同上，储罐的序号。 */
     private static final String TANK_INDEX_KEY = "ctnhlib.tooltip.tank_index";
+    private static final String BUTTON_INDEX_KEY = "ctnhlib.tooltip.button_index";
 
     private MachineUiOverlay() {}
 
@@ -116,15 +119,19 @@ final class MachineUiOverlay {
     }
 
     /**
-     * 前景层：选中高亮、幽灵槽文字这些画在这里。
+     * 前景层：选中高亮、幽灵槽文字这些画在这里。画不成也不影响面板本身——背景层在调用它之前就画完了，
+     * 我们自己的 tooltip 与红框也都不走这一层。
      *
      * <p>
-     * 但它会去要 {@code ModularUIGuiContainer}，而 ponder 里没有这个容器：
-     * GT 的 ConfiguratorPanel 与 LDLib 的 SlotWidget 在那里都会 NPE。所以整层包一层保护，
-     * 崩了就只跳过前景层（背景层已经画完，面板照常显示），并且只报一次。
+     * 它需要 {@code ModularUIGuiContainer}，而那个容器只在面板以真实界面打开时才存在：ponder 里是自绘面板，
+     * 所以这里先问一句，别让 LDLib 抛 NPE 再由我们兜——那样每局都会在日志里留下一条吓人的堆栈。
+     * 兜底的 try/catch 仍然保留：别的控件可能以别的方式抛，那种情况才值得报一次。
      */
     private static void drawForeground(MachineUiPanel panel, GuiGraphics graphics, int mouseX, int mouseY,
                                        float partialTicks) {
+        if (panel.modularUi().getModularUIGui() == null) {
+            return;
+        }
         try {
             panel.modularUi().mainGroup.drawInForeground(graphics, mouseX, mouseY, partialTicks);
         } catch (Throwable t) {
@@ -177,7 +184,7 @@ final class MachineUiOverlay {
             Widget hovered = panel.modularUi().mainGroup.getHoverElement(uiMouseX, uiMouseY);
             List<Component> lines = new ArrayList<>(tooltipFor(hovered, uiMouseX, uiMouseY));
             // 空槽位的 getFullTooltipTexts() 是空列表，序号得在判空之前加。
-            appendSlotIndex(panel, hovered, lines);
+            appendIndexLine(panel, hovered, lines);
             if (lines.isEmpty()) {
                 return;
             }
@@ -190,10 +197,16 @@ final class MachineUiOverlay {
     }
 
     /**
-     * Ponder 的编辑模式（{@code PonderConfig.Client().editingMode}）打开时，把悬停槽位在机器里的真实序号
-     * 加在 tooltip 第一行——写场景时对着它填 {@code slot(index)}。玩家背包的槽位不算在内。
+     * Ponder 的编辑模式（{@code PonderConfig.Client().editingMode}）打开时，把悬停控件在机器里的真实序号
+     * 加在 tooltip 第一行——写场景时对着它填 {@code slot(index)} / {@code tank(index)} /
+     * {@code outlineButton(index)}。玩家背包的槽位不算在内，也不出现这行。
+     *
+     * <p>
+     * 槽位、储罐、按钮都靠「控件对象在这份收集清单里的位置」反查序号，和
+     * {@code MachineUiPanel} 里 {@code slot}/{@code tank}/{@code button} 用的是同一份清单，
+     * 所以这里读到的数字就是场景里该填的数字。
      */
-    private static void appendSlotIndex(MachineUiPanel panel, Widget hovered, List<Component> lines) {
+    private static void appendIndexLine(MachineUiPanel panel, Widget hovered, List<Component> lines) {
         if (!PonderIndex.editingModeActive()) {
             return;
         }
@@ -209,6 +222,13 @@ final class MachineUiOverlay {
             if (index >= 0) {
                 lines.add(0, Component.translatable(TANK_INDEX_KEY, index).withStyle(ChatFormatting.GRAY));
             }
+            return;
+        }
+        if (hovered instanceof SwitchWidget || hovered instanceof ButtonWidget) {
+            int index = panel.machineButtons().indexOf(hovered);
+            if (index >= 0) {
+                lines.add(0, Component.translatable(BUTTON_INDEX_KEY, index).withStyle(ChatFormatting.GRAY));
+            }
         }
     }
 
@@ -222,6 +242,10 @@ final class MachineUiOverlay {
         if (hovered instanceof SlotWidget slot) {
             // 含 LargeStackSlotWidget 的「64 / 256」数量行。
             return slot.getFullTooltipTexts();
+        }
+        if (hovered instanceof SwitchWidget || hovered instanceof ButtonWidget) {
+            // 按钮的悬停提示只存在控件里，dev 下的 drawTooltipTexts 走的是不存在的容器，这里自己取出来。
+            return hovered.getTooltipTexts();
         }
         if (hovered instanceof TabsWidget tabs) {
             IFancyUIProvider tab = tabs.getHoveredTab(mouseX, mouseY);
