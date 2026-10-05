@@ -69,8 +69,9 @@ public class MachineUiElement extends AnimatedOverlayElementBase {
         if (this.machinePos == null) {
             // 以前这里会把锚点所在的那一格当作机器，指向点写在机器上方时就会静默解析到空气上。
             // 现在不猜了：没写机器位置就报一行错、这一段什么都不画。
-            CTNHLib.LOGGER.error("CTNHLib: this UI segment has no machine position - call .machinePos(pos), or use the "
-                    + "one-step at(machinePos); nothing is drawn for this segment");
+            CTNHLib.LOGGER
+                    .error("CTNHLib: this UI segment has no machine position - call .machinePos(pos), or use the " +
+                            "one-step at(machinePos); nothing is drawn for this segment");
             this.failed = true;
         }
         this.writes = new MachineUiWrites(this.machinePos, plan.slots(), plan.fluids());
@@ -221,8 +222,8 @@ public class MachineUiElement extends AnimatedOverlayElementBase {
         BlockEntity blockEntity = scene.getWorld().getBlockEntity(machinePos);
         if (blockEntity == null) {
             MachineUiPanelBuilder.reportUnavailable(machinePos,
-                    "there is no block entity at this position — check the forMachine(...) coordinate "
-                            + "against the storyboard (the controller is often one block off)");
+                    "there is no block entity at this position — check the forMachine(...) coordinate " +
+                            "against the storyboard (the controller is often one block off)");
             return null;
         }
         if (panel != null && panel.blockEntity() == blockEntity) {

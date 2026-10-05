@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUI;
 import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiStart;
-import tech.vixhentx.mcmod.ctnhlib.client.ponder.ui.MachineUiPlacement;
 import tech.vixhentx.mcmod.ctnhlib.langprovider.Lang;
 
 public class CTNHPonderSceneBuilder extends CreateSceneBuilder {

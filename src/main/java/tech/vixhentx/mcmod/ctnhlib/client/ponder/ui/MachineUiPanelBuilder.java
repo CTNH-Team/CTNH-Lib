@@ -9,8 +9,8 @@ import com.gregtechceu.gtceu.api.gui.fancy.TitleBarWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator;
-import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IUIMachine;
+import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.texture.TextTexture;
@@ -80,7 +80,8 @@ final class MachineUiPanelBuilder {
         // MachineUI#forceMultiblockActivated() 时，这里才直接把它成型。
         // 这里刻意不跑 pattern 校验：假场景里那次校验不可靠（例如 GT 的镜像支路只取反一个轴，
         // 合法的镜像摆法未必能过），也不该由界面层替场景作者判断结构对不对。
-        if (machine instanceof MultiblockControllerMachine controller && !controller.isFormed() && ui.isForceMultiblockActivated()) {
+        if (machine instanceof MultiblockControllerMachine controller && !controller.isFormed() &&
+                ui.isForceMultiblockActivated()) {
             form(controller, machinePos);
         }
         if (!(machine instanceof IUIMachine uiMachine)) {
