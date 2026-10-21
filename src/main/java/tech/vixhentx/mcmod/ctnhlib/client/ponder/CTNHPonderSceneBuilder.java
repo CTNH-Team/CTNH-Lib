@@ -78,16 +78,16 @@ public class CTNHPonderSceneBuilder extends CreateSceneBuilder {
     }
 
     /**
-     * 在方块的某一面上画出 GT 的九宫格工具覆盖层：手持工具对准方块时会浮出来的那块 3x3 格子，
-     * 格子里是「点这里会做什么」的图标（扳手转向、软锤启停、硬锤静音……）。
+     * 在方块的某一面上画出 GT 的九宫格工具覆盖层：手持工具对准方块时浮出的那块 3x3 格子，
+     * 格子里是「点这里会做什么」的图标（扳手转向、软锤启停、硬锤静音等）。
      *
      * <pre>{@code
-     * scene.showToolGrid(controllerPos, Direction.NORTH).outline(4).show(120);
+     * scene.showToolGrid(controllerPos, Direction.NORTH).highlight(1).show(120);
      * }</pre>
      *
      * <p>
      * 格子按行优先编号（从面外侧看）：0 左上、1 上、2 右上、3 左、4 中心、5 右、6 左下、7 下、8 右下。
-     * 图标由方块自己给，所以机器上的盖子、自动输出口都会照实反映出来；给不出图标的格子留空。
+     * 图标由方块自己给，机器上的盖子与自动输出口都照实反映；给不出图标的格子留空。
      */
     public ToolGridPlacement showToolGrid(BlockPos pos, Direction face) {
         return new ToolGridPlacement(this, pos, face);
