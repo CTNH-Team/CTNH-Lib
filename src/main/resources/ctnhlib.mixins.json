@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "tech.vixhentx.mcmod.ctnhlib.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "ctnhlib.refmap.json",
+  "refmap": "mixins.ctnhlib.refmap.json",
   "mixins": [
     "GTRecipesMixin",
     "MachineBuilderMixin",
