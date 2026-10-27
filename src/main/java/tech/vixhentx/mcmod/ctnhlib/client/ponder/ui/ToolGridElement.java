@@ -9,8 +9,6 @@ import com.gregtechceu.gtceu.client.util.RenderUtil;
 
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.createmod.catnip.render.PonderRenderTypes;
 import net.createmod.ponder.api.level.PonderLevel;
 import net.createmod.ponder.enums.PonderSpecialTextures;
@@ -30,6 +28,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import tech.vixhentx.mcmod.ctnhlib.CTNHLib;
